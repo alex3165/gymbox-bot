@@ -1,0 +1,25 @@
+{
+  "name": "gymbox-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alex3165/gymbox-bot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alex3165/gymbox-bot/issues"
+  },
+  "homepage": "https://github.com/alex3165/gymbox-bot#readme",
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "moment": "^2.17.0",
+    "request": "^2.79.0",
+    "xml2js": "^0.4.17"
+  }
+}
