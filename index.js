@@ -30,32 +30,39 @@ const extractTimeTable = (body) => {
 };
 
 const formatTimeTable = (timeTable) => {
+  return timeTable.table.tr.reduce((acc, tr) => {
 
-  const tt = timeTable.table.tr.reduce((acc, tr) => {
     if (tr.$ && tr.$.class === 'dayHeader') {
       const date = moment(tr.td[0].h5[0].trim(), "dddd - DD MMMM YYYY");
-      acc[date.format(dateFormat)] = {};
-      return acc;
+      acc[date.format(dateFormat)] = [];
     }
 
     if (!tr.$ || tr.$.class === 'altRow') {
-      // const lastKey = Object.keys(acc)
-      // TODOOOOOOO
-      return acc
+      const lastKey = Object.keys(acc).pop();
+
+      acc[lastKey].push({
+        id: parseInt(tr.td[5].span[0].a[0].$.rel.split('=')[1]),
+        className: tr.td[1].span[0].a[0]._,
+        time: tr.td[0].span[0]._,
+        canBook: !(tr.td[6] === 'Full' || tr.td[6] === 'Past')
+      });
     }
 
-  }, {});
+    return acc;
 
-  // const date = timeTable.table.tr[0].td[0].h5[0].trim();
-  // const d = moment(date, "dddd - DD MMMM YYYY");
-  // console.log(timeTable.table.tr);
+  }, {});
 };
+
+const filterClasses
 
 const main = () => {
   GRequest.login(config.email, config.password, cookies)
     .then(GRequest.getGymboxTimeTable.bind(null, gymboxTimeTableUrl, cookies))
     .then(extractTimeTable)
     .then(formatTimeTable)
+    .then((res) => {
+      console.log(res);
+    })
     .catch(err => {
       throw new Error(err);
     })
