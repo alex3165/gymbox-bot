@@ -1,10 +1,18 @@
 const request = require('request');
+const session = require('./session.json');
+
+const cookies = Object.keys(session).map(key => `${key}=${session[key]}`).join('; ');
+
+const baseUrl = 'https://gymbox.legendonlineservices.co.uk/enterprise'
+const loginUrl = `${baseUrl}/account/login`;
+const timeTableUrl = `${baseUrl}/BookingsCentre/MemberTimetable`;
+const bookClassUrl = `${baseUrl}/BookingsCentre/AddBooking`;
 
 module.exports = {
-  login(email, password, cookies) {
+  login(email, password) {
     return new Promise((res, rej) => {
       request.post({
-        url: 'https://gymbox.legendonlineservices.co.uk/enterprise/account/login',
+        url: loginUrl,
         headers: {
           'Cookie': cookies,
         },
@@ -22,10 +30,10 @@ module.exports = {
       });
     });
   },
-  getGymboxTimeTable(gymboxTimeTableUrl, cookies) {
+  getGymboxTimeTable() {
     return new Promise((res, rej) => {
       request.get({
-        url: gymboxTimeTableUrl,
+        url: timeTableUrl,
         headers: {
           'Cookie': cookies
         }
@@ -36,6 +44,25 @@ module.exports = {
         }
 
         return rej(err);
+      });
+    });
+  },
+  postBooking(lesson) {
+    const params = ['booking', lesson.id];
+
+    return new Promise((res, rej) => {
+      request.get({
+        url: `${bookClassUrl}?${params.join('=')}`,
+        headers: {
+          'Cookie': cookies
+        }
+      }, (err, _, body) => {
+        if (!err && body.success) {
+          console.log(`Booked class ${lesson.className} at ${lesson.time}`);
+          return res(body);
+        }
+
+        return rej(err || body);
       });
     });
   }

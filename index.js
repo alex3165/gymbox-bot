@@ -1,16 +1,17 @@
 const moment = require('moment');
 const cheerio = require('cheerio');
 const parseString = require('xml2js').parseString;
-const GRequest = require('./requests');
+const {
+  login,
+  getGymboxTimeTable,
+  postBooking
+} = require('./requests');
 
 const classes = require('./classes.json');
+
+// process.argv.map(arg => )
+
 const config = require('./config.json');
-const session = require('./session.json');
-
-const cookies = Object.keys(session).map(key => `${key}=${session[key]}`).join('; ');
-
-const gymboxBaseUrl = 'https://gymbox.legendonlineservices.co.uk/enterprise'
-const gymboxTimeTableUrl = `${gymboxBaseUrl}/BookingsCentre/MemberTimetable`;
 
 const dateFormat = "YYYY-MM-DD";
 
@@ -53,17 +54,42 @@ const formatTimeTable = (timeTable) => {
   }, {});
 };
 
-const filterClasses
+const filterToBook = (lessons) => {
+  return Object.keys(classes)
+    .filter(date => date === moment().add(1, 'day').format(dateFormat))
+    .map(date =>
+      classes[date]
+        .map(lesson =>
+          lessons[date] && lessons[date].find(l =>
+            l.className === lesson.className
+            && l.time === lesson.time
+            && l.canBook
+          )
+        )
+        .filter(Boolean)
+    )
+    .shift();
+};
+
+const bookClasses = (lessons) => {
+  if (lessons) {
+    console.log('Lessons about to book: ', lessons);
+    return Promise.all(lessons.map(postBooking));
+  }
+
+  console.log('No lessons to book today');
+  return;
+}
 
 const main = () => {
-  GRequest.login(config.email, config.password, cookies)
-    .then(GRequest.getGymboxTimeTable.bind(null, gymboxTimeTableUrl, cookies))
+  login(config.email, config.password)
+    .then(getGymboxTimeTable)
     .then(extractTimeTable)
     .then(formatTimeTable)
-    .then((res) => {
-      console.log(res);
-    })
+    .then(filterToBook)
+    .then(bookClasses)
     .catch(err => {
+      console.error(err);
       throw new Error(err);
     })
 };
