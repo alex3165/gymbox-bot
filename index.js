@@ -9,9 +9,23 @@ const {
 
 const classes = require('./classes.json');
 
-// process.argv.map(arg => )
+const emailArg = process.argv.indexOf('-e');
+const passArg = process.argv.indexOf('-p');
 
-const config = require('./config.json');
+let email;
+let password;
+
+if (emailArg > -1 && passArg > -1) {
+  email = process.argv[emailArg + 1];
+  password = process.argv[passArg + 1];
+} else {
+  const config = require('./config.json');
+
+  email = config.email;
+  password = config.password;
+}
+
+console.log('Start with email: ', email);
 
 const dateFormat = "YYYY-MM-DD";
 
@@ -82,7 +96,7 @@ const bookClasses = (lessons) => {
 }
 
 const main = () => {
-  login(config.email, config.password)
+  login(email, password)
     .then(getGymboxTimeTable)
     .then(extractTimeTable)
     .then(formatTimeTable)
