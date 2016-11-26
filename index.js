@@ -4,7 +4,8 @@ const parseString = require('xml2js').parseString;
 const {
   login,
   getGymboxTimeTable,
-  postBooking
+  postBooking,
+  completeBasket
 } = require('./requests');
 
 const classes = require('./classes.json');
@@ -102,6 +103,7 @@ const main = () => {
     .then(formatTimeTable)
     .then(filterToBook)
     .then(bookClasses)
+    .then(completeBasket)
     .catch(err => {
       console.error(err);
       throw new Error(err);

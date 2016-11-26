@@ -7,6 +7,7 @@ const baseUrl = 'https://gymbox.legendonlineservices.co.uk/enterprise'
 const loginUrl = `${baseUrl}/account/login`;
 const timeTableUrl = `${baseUrl}/BookingsCentre/MemberTimetable`;
 const bookClassUrl = `${baseUrl}/BookingsCentre/AddBooking`;
+const completeBasketUrl = `${baseUrl}/Basket/Pay`;
 
 module.exports = {
   login(email, password) {
@@ -63,6 +64,23 @@ module.exports = {
         }
 
         return rej(err || body);
+      });
+    });
+  },
+  completeBasket() {
+    return new Promise((res, rej) => {
+      request.get({
+        url: completeBasketUrl,
+        headers: {
+          'Cookie': cookies
+        }
+      }, (err, _, body) => {
+        if (!err && _.statusCode === 302) {
+          console.log('Payment succeed: ', body);
+          return res();
+        }
+
+        return rej(err);
       });
     });
   }
