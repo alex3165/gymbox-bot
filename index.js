@@ -104,8 +104,10 @@ const main = () => {
     .then(filterToBook)
     .then(bookClasses)
     .then(completeBasket)
+    .then(logout)
     .catch(err => {
-      console.error(err);
+      logout();
+      console.error('Error: ', err);
       throw new Error(err);
     })
 };

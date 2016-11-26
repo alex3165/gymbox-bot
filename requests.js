@@ -8,6 +8,7 @@ const loginUrl = `${baseUrl}/account/login`;
 const timeTableUrl = `${baseUrl}/BookingsCentre/MemberTimetable`;
 const bookClassUrl = `${baseUrl}/BookingsCentre/AddBooking`;
 const completeBasketUrl = `${baseUrl}/Basket/Pay`;
+const logoutUrl = `${baseUrl}/Account/Logout`;
 
 module.exports = {
   login(email, password) {
@@ -77,6 +78,23 @@ module.exports = {
       }, (err, _, body) => {
         if (!err && _.statusCode === 302) {
           console.log('Payment succeed: ', body);
+          return res();
+        }
+
+        return rej(err);
+      });
+    });
+  },
+  logout() {
+    return new Promise((res, rej) => {
+      request.get({
+        url: logoutUrl,
+        headers: {
+          'Cookie': cookies
+        }
+      }, (err, _, body) => {
+        if (!err && _.statusCode === 302) {
+          console.log('Logout succeed, code: ', _.statusCode);
           return res();
         }
 
