@@ -84,22 +84,5 @@ module.exports = {
         return rej(err);
       });
     });
-  },
-  logout() {
-    return new Promise((res, rej) => {
-      request.get({
-        url: logoutUrl,
-        headers: {
-          'Cookie': cookies
-        }
-      }, (err, _, body) => {
-        if (!err && _.statusCode === 302) {
-          console.log('Logout succeed, code: ', _.statusCode);
-          return res();
-        }
-
-        return rej(err);
-      });
-    });
   }
 }
