@@ -10,7 +10,7 @@ Run an API and a CRON task in order to simplify the booking of a gymbox class.
 <br/>
 - CRON: Run the booking script everyday at 7pm according to the data in `classes.json`
 
-# How to use
+## How to use
 
 Temporary add a `session.json` file which should look like (Check your cookies of gymbox official website on your browser) :
 ```
@@ -46,3 +46,7 @@ Run the script:
 ```
 node api.js -e your_email -p your_password
 ```
+
+## Use case
+
+API: fetch time table --> [your client select a class] --> API: add a class --> CRON: book the class for yourself
