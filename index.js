@@ -3,6 +3,7 @@ const cheerio = require('cheerio');
 const parseString = require('xml2js').parseString;
 const {
   login,
+  logout,
   getGymboxTimeTable,
   postBooking,
   completeBasket
@@ -104,11 +105,15 @@ const main = () => {
     .then(filterToBook)
     .then(bookClasses)
     .then(completeBasket)
+    .then(logout)
     .catch(err => {
       if (err) {
         console.error('Error: ', err);
       }
-      throw new Error(err);
+
+      logout().then(() => {
+        throw new Error(err);
+      })
     })
 };
 

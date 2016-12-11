@@ -32,6 +32,23 @@ module.exports = {
       });
     });
   },
+  logout() {
+    return new Promise((res, rej) => {
+      request.post({
+        url: logoutUrl,
+        headers: {
+          'Cookie': cookies,
+        }
+      }, (err, _, body) => {
+        if (!err && _.statusCode === 302) {
+          console.log('Logout succeed code: ', _.statusCode);
+          return res();
+        }
+
+        return rej(err);
+      });
+    });
+  },
   getGymboxTimeTable() {
     return new Promise((res, rej) => {
       request.get({
@@ -59,7 +76,8 @@ module.exports = {
           'Cookie': cookies
         }
       }, (err, _, body) => {
-        if (!err && body.success) {
+        const parsedBody = JSON.parse(body);
+        if (!err && parsedBody.Success) {
           console.log(`Booked class ${lesson.className} at ${lesson.time}`);
           return res(body);
         }
@@ -76,8 +94,10 @@ module.exports = {
           'Cookie': cookies
         }
       }, (err, _, body) => {
+        console.log('completeBasket with status code: ', _.statusCode, body, err);
+
         if (!err && _.statusCode === 302) {
-          console.log('Payment succeed: ', body);
+          console.log('Payment succeed with body: ', body);
           return res();
         }
 
