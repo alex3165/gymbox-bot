@@ -1,8 +1,14 @@
 # Gymbox bot
 
-Run this script on a CRON on Linux and never bother yourself waking up at 7am to book your gym classes.
+Run an API and a CRON task in order to simplify the booking of a gymbox class.
 
-Tested only on node 6.5.0
+## Features
+
+- API: Expose 2 endpoints
+  - `/api/table`: Scrap and format a gymbox time table
+  - `/api/add`: Add a new class to `classes.json`
+<br/>
+- CRON: Run the booking script everyday at 7pm according to the data in `classes.json`
 
 # How to use
 
@@ -38,5 +44,5 @@ Create a `classes.json` file to define the classes you want to attend, example o
 Run the script:
 
 ```
-node index.js -e your_email -p your_password
+node api.js -e your_email -p your_password
 ```
