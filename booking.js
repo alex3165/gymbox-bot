@@ -8,35 +8,41 @@ const {
 } = require('./requests');
 
 const { extractTimeTable, dateFormat } = require('./timetable');
-
 const classes = require('./classes.json');
 
 const filterToBook = (lessons) => {
-  return Object.keys(classes)
-    .filter(date => date === moment().add(1, 'day').format(dateFormat))
+  let classesToBook = Object.keys(classes)
+    .filter(date => moment().add(2, 'day').isAfter(moment(date)) && moment().isBefore(moment(date)))
     .map(date =>
-      classes[date]
-        .map(lesson =>
-          lessons[date] && lessons[date].find(l =>
-            l.className === lesson.className
-            && l.time === lesson.time
-            && l.canBook
-          )
-        )
-        .filter(Boolean)
+      lessons[date]
+        .find(l => {
+          return (
+            l.className === classes[date].className
+            && l.time === classes[date].time
+          );
+        })
     )
-    .shift();
+    .filter(Boolean);
+
+    return classesToBook.filter(l => {
+      if (!l.canBook) {
+        console.log(`Can't book class ${l.className} at ${l.time}`)
+        return false
+      }
+
+      return true;
+    })
 };
 
 const bookClasses = (lessons) => {
-  if (lessons) {
+  if (lessons && lessons.length > 0) {
     console.log('Lessons about to book: ', lessons);
     return Promise.all(lessons.map(postBooking));
   }
 
-  console.log('No lessons to book today');
-  return;
-}
+  console.error('No lessons to book today');
+  throw new Error('No lessons to book today');
+};
 
 const main = (email, password) => {
   login(email, password)
@@ -47,12 +53,8 @@ const main = (email, password) => {
     .then(completeBasket)
     .then(logout)
     .catch(err => {
-      if (err) {
-        console.error('Error: ', err);
-      }
-
       logout().then(() => {
-        throw new Error(err);
+        console.log('Couldn\'t complete the booking');
       })
     })
 };
