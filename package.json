@@ -5,7 +5,8 @@
   "main": "api.js",
   "scripts": {
     "book": "node cli.js",
-    "schedule": "node scheduler.js"
+    "schedule": "node scheduler.js",
+    "api": "node api.js"
   },
   "repository": {
     "type": "git",

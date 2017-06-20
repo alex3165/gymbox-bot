@@ -6,6 +6,8 @@ const { login, getGymboxTimeTable } = require('./dist/requests');
 const { extractTimeTable } = require('./dist/timetable');
 const { createRxMiddleware } = require('./utils/rx-middleware');
 const { readfile, writeFile } = require('./utils/rx-fs');
+const { getUserLoginDetails } = require('./utils/login');
+const { email, password } = getUserLoginDetails();
 
 const addClass = (classes, newClass) => {
   const copiedClasses = Object.assign({}, classes);
@@ -29,7 +31,7 @@ app.get('/api/table', createRxMiddleware((req$) =>
   req$
     .flatMap(() =>
       Observable
-        .fromPromise(login(email, password))
+        .fromPromise(login({ shouldSetCookies: true }).then(() => login({ email, password })))
         .flatMap(() => Observable.fromPromise(getGymboxTimeTable()))
         .flatMap(extractTimeTable)
         .catch((err) => {
