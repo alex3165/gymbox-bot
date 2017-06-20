@@ -1,17 +1,11 @@
 const express = require('express');
-const cron = require('node-cron');
-const moment = require('moment');
 const app = express();
 const { Observable } = require('rxjs');
 const { pick } = require('ramda');
-const { login, getGymboxTimeTable } = require('./requests');
-const { extractTimeTable } = require('./timetable');
+const { login, getGymboxTimeTable } = require('./dist/requests');
+const { extractTimeTable } = require('./dist/timetable');
 const { createRxMiddleware } = require('./utils/rx-middleware');
-const { getUserLoginDetails } = require('./utils/login');
 const { readfile, writeFile } = require('./utils/rx-fs');
-const { main } = require('./booking');
-
-const { email, password } = getUserLoginDetails();
 
 const addClass = (classes, newClass) => {
   const copiedClasses = Object.assign({}, classes);
@@ -74,14 +68,3 @@ app.get('/api/add', createRxMiddleware((req$) =>
 
 // Start the app and listen on port 3000
 app.listen(3002);
-
-main(email, password);
-
-/**
-* Run everyday at 7 am the booking script which is getting the classes to book from classes.json
-* and book them accordingly 1 day before
-*/
-cron.schedule('*/3 * * * *', () => {
-  console.log(`Running booking at ${moment().format()}`);
-  main(email, password);
-});

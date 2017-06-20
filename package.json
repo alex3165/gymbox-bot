@@ -4,7 +4,8 @@
   "description": "",
   "main": "api.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "book": "node cli.js",
+    "schedule": "node scheduler.js"
   },
   "repository": {
     "type": "git",

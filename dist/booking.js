@@ -4,11 +4,13 @@ const {
   logout,
   getGymboxTimeTable,
   postBooking,
-  completeBasket
+  getActiveNotices,
+  completeBasket,
+  confirmPayment
 } = require('./requests');
 
 const { extractTimeTable, dateFormat } = require('./timetable');
-const classes = require('./classes.json');
+const classes = require('../classes.json');
 
 const filterToBook = (lessons) => {
   let classesToBook = Object.keys(classes)
@@ -45,16 +47,19 @@ const bookClasses = (lessons) => {
 };
 
 const main = (email, password) => {
-  login(email, password)
+  login({ shouldSetCookies: true })
+    .then(() => login({ email, password }))
     .then(getGymboxTimeTable)
     .then(extractTimeTable)
     .then(filterToBook)
     .then(bookClasses)
+    .then(() => getActiveNotices('https://gymbox.legendonlineservices.co.uk/enterprise/Basket/'))
     .then(completeBasket)
+    .then(confirmPayment)
     .then(logout)
     .catch(err => {
       logout().then(() => {
-        console.log('Couldn\'t complete the booking');
+        console.error('Logged out because of an error', err);
       })
     })
 };

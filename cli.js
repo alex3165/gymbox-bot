@@ -1,5 +1,5 @@
-const { main } = require('./booking');
 const { getUserLoginDetails } = require('./utils/login');
+const { main } = require('./dist/booking');
 
 const { email, password } = getUserLoginDetails();
 
