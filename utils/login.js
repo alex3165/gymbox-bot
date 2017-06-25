@@ -18,8 +18,6 @@ module.exports = {
       details.password = config.password;
     }
 
-    console.log('Start with email: ', details.email);
-
     return details;
   }
 }
