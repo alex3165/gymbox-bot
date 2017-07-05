@@ -1,3 +1,5 @@
+![gif](https://media.giphy.com/media/3oz8xK9ER0CRMAhozK/giphy.gif)
+
 # Gymbox bot
 
 Provide you a complete experience to automate booking of your gymbox classes:
