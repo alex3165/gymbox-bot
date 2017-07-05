@@ -14,16 +14,24 @@ const classes = require('../classes.json');
 
 const filterToBook = (lessons) => {
   let classesToBook = Object.keys(classes)
-    .filter(date => moment().add(2, 'day').isAfter(moment(date)) && moment().isBefore(moment(date)))
-    .map(date =>
+    .filter(date => (
+      // Is the class minus 2 days at 7am same or before current date / time
+      moment(date)
+        .subtract(2, 'day')
+        .hour(7)
+        .minute(0)
+        .second(0)
+        .isSameOrBefore(moment()) &&
+      // Is the class after current date / time
+      moment(date).isAfter(moment())
+    ))
+    .map(date => (
       lessons[date]
-        .find(l => {
-          return (
-            l.className === classes[date].className
-            && l.time === classes[date].time
-          );
-        })
-    )
+        .find(l =>(
+          l.className === classes[date].className
+          && l.time === classes[date].time
+        ))
+    ))
     .filter(Boolean);
 
     return classesToBook.filter(l => {
@@ -38,11 +46,10 @@ const filterToBook = (lessons) => {
 
 const bookClasses = (lessons) => {
   if (lessons && lessons.length > 0) {
-    console.log('Lessons about to book: ', lessons);
+    console.log(`Lessons ready to book: ${lessons.map(l => l.className).join(' ')}`);
     return Promise.all(lessons.map(postBooking));
   }
 
-  console.error('No lessons to book today');
   throw new Error('No lessons to book today');
 };
 
@@ -59,7 +66,21 @@ const main = (email, password) => {
     .then(logout)
     .catch(err => {
       logout().then(() => {
-        console.error('Logged out because of an error', err);
+        let errorMessage;
+
+        if (typeof err === 'string') {
+          errorMessage = err;
+        }
+
+        if (err instanceof Error) {
+          errorMessage = err.message;
+        }
+
+        if (typeof err === 'object' && err.Message) {
+          errorMessage = err.Message;
+        }
+
+        console.error('Logged out, error: ', errorMessage);
       })
     })
 };

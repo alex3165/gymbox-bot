@@ -42,7 +42,7 @@ module.exports = {
       }, (err, _, body) => {
         if (shouldSetCookies) {
           cookies = getCookies(_.headers['set-cookie']);
-          console.log('Set cookies', cookies);
+          // console.log('Set cookies', cookies);
           return res();
         }
 
