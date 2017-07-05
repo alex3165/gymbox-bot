@@ -15,7 +15,7 @@ First you need to add your `email` and `password` into a `config.json`, example:
 }
 ```
 
-Secondly you need to add the class you want to book (Create your own client and use the API if you want):
+Secondly you need to add the class you want to book to the `classes.json` file:
 ```
 {
   "2017-06-21": {
