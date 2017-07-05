@@ -16,7 +16,7 @@ const run = () => {
 /**
 * Run everyday at 7am (retry every 5 minutes for 2 hours after 7am)
 */
-cron.schedule(CRON || '44 * * * *', () => {
+cron.schedule(CRON || '0 7 * * *', () => {
 
   run();
 
