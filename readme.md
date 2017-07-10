@@ -9,16 +9,16 @@ Provide you a complete experience to automate booking of your gymbox classes:
 
 ## How to make a booking
 
-First you need to add your `email` and `password` into a `config.json`, example:
-```
+First you need to add your `email` and `password` into a `./data/config.json`, example:
+```json
 {
   "email": "YOUR_EMAIL_HERE",
   "password": "YOUR_PASSWORD_HERE"
 }
 ```
 
-Secondly you need to add the class you want to book to the `classes.json` file:
-```
+Secondly you need to add the class you want to book to the `./data/classes.json` file:
+```json
 {
   "2017-06-21": {
     "className": "Gymnastic Conditioning",
@@ -30,7 +30,7 @@ Secondly you need to add the class you want to book to the `classes.json` file:
 ### Using the cli
 
 ```
-node cli.js
+node cli.js -c run
 ```
 
 ### Using the scheduler
@@ -43,8 +43,8 @@ node scheduler.js
 
 ## How to use the API
 
-First you need to add your `email` and `password` into a `config.json`, example:
-```
+First you need to add your `email` and `password` into a `./data/config.json`, example:
+```json
 {
   "email": "YOUR_EMAIL_HERE",
   "password": "YOUR_PASSWORD_HERE"

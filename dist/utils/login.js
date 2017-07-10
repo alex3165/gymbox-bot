@@ -1,7 +1,5 @@
-const config = require('../config.json');
-
 module.exports = {
-  getUserLoginDetails() {
+  getUserLoginDetails(config) {
     const emailArg = process.argv.indexOf('-e');
     const passArg = process.argv.indexOf('-p');
 

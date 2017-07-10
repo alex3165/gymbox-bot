@@ -4,10 +4,11 @@ const { Observable } = require('rxjs');
 const { pick } = require('ramda');
 const { login, getGymboxTimeTable } = require('./dist/requests');
 const { extractTimeTable } = require('./dist/timetable');
-const { createRxMiddleware } = require('./utils/rx-middleware');
-const { readfile, writeFile } = require('./utils/rx-fs');
-const { getUserLoginDetails } = require('./utils/login');
-const { email, password } = getUserLoginDetails();
+const { createRxMiddleware } = require('./dist/utils/rx-middleware');
+const { readfile, writeFile } = require('./dist/utils/rx-fs');
+const config = require('./data/config.json');
+const { getUserLoginDetails } = require('./dist/utils/login');
+const { email, password } = getUserLoginDetails(config);
 
 const addClass = (classes, newClass) => {
   const copiedClasses = Object.assign({}, classes);

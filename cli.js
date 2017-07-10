@@ -1,7 +1,8 @@
-const { getUserLoginDetails } = require('./utils/login');
+const config = require('./data/config.json');
+const { getUserLoginDetails } = require('./dist/utils/login');
 const { main } = require('./dist/booking');
 
-const { email, password } = getUserLoginDetails();
+const { email, password } = getUserLoginDetails(config);
 
 const command = process.argv.indexOf('-c');
 

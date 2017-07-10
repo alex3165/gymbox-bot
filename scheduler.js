@@ -1,8 +1,10 @@
 const cron = require('node-cron');
 const moment = require('moment');
 const { main } = require('./dist/booking');
-const { getUserLoginDetails } = require('./utils/login');
-const { email, password } = getUserLoginDetails();
+const config = require('./data/config.json');
+
+const { getUserLoginDetails } = require('./dist/utils/login');
+const { email, password } = getUserLoginDetails(config);
 
 const { CRON } = process.env;
 

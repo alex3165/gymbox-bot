@@ -10,14 +10,14 @@ const {
 } = require('./requests');
 
 const { extractTimeTable, dateFormat } = require('./timetable');
-const classes = require('../classes.json');
+const classes = require('../data/classes.json');
 
 const filterToBook = (lessons) => {
   let classesToBook = Object.keys(classes)
     .filter(date => (
-      // Is the class minus 2 days at 7am same or before current date / time
+      // Is the class minus 1 days at 7am same or before current date / time
       moment(date)
-        .subtract(2, 'day')
+        .subtract(1, 'day')
         .hour(7)
         .minute(0)
         .second(0)
