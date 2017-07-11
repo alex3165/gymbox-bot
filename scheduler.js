@@ -1,5 +1,6 @@
 const cron = require('node-cron');
 const moment = require('moment');
+const momentTz = require('moment-timezone');
 const { main } = require('./dist/booking');
 const config = require('./data/config.json');
 
@@ -15,10 +16,16 @@ const run = () => {
   main(email, password);
 }
 
+const getTimezonedhour = () => {
+  const machineHour = momentTz.tz(momentTz.tz.guess()).hour();
+  const BSTHour = momentTz.tz('Europe/London').hour();
+  return 7 + (machineHour - BSTHour);
+}
+
 /**
-* Run everyday at 7am (retry every 5 minutes for 2 hours after 7am)
+* Run everyday at 7am, BST time (retry every 5 minutes for 2 hours after 7am)
 */
-cron.schedule(CRON || '0 7 * * *', () => {
+cron.schedule(CRON || `0 ${getTimezonedhour()} * * *`, () => {
 
   run();
 
