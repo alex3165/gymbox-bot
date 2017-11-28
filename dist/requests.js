@@ -33,7 +33,9 @@ module.exports = {
       request.post({
         url: loginUrl,
         headers: {
-          'Cookie': shouldSetCookies ? undefined : cookies
+          'Cookie': shouldSetCookies ? undefined : cookies,
+          'Accept-Language': 'en-GB,en;q=0.9,es;q=0.8',
+          'DNT': '1'
         },
         formData: (email && password) ? {
           'login.Email': email,
@@ -79,7 +81,9 @@ module.exports = {
       request.get({
         url: timeTableUrl,
         headers: {
-          'Cookie': cookies
+          'Cookie': cookies,
+          'Accept-Language': 'en-GB,en;q=0.9,es;q=0.8',
+          'DNT': '1'
         }
       }, (err, _, body) => {
         if (!err) {
