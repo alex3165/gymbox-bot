@@ -2,7 +2,7 @@ const request = require('request');
 const { flatten } = require('ramda');
 
 const baseUrl = 'https://gymbox.legendonlineservices.co.uk/enterprise'
-const loginUrl = `${baseUrl}/account/home#`;
+const loginUrl = `${baseUrl}/account/login`;
 const timeTableUrl = `${baseUrl}/BookingsCentre/MemberTimetable`;
 const bookClassUrl = `${baseUrl}/BookingsCentre/AddBooking`;
 const activeNotices = `${baseUrl}/notices/activenotices`;
