@@ -81,9 +81,7 @@ module.exports = {
       request.get({
         url: timeTableUrl,
         headers: {
-          'Cookie': cookies,
-          'Accept-Language': 'en-GB,en;q=0.9,es;q=0.8',
-          'DNT': '1'
+          'Cookie': cookies
         }
       }, (err, _, body) => {
         if (!err) {
