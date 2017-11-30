@@ -23,7 +23,11 @@ const filterToBook = (lessons) => {
         .second(0)
         .isSameOrBefore(moment()) &&
       // Is the class after current date / time
-      moment(date).isAfter(moment())
+      moment(date)
+        .hour(23)
+        .minute(59)
+        .second(59)
+        .isSameOrAfter(moment())
     ))
     .map(date => (
       lessons[date]
