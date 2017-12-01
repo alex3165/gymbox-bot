@@ -10,9 +10,9 @@ const {
 } = require('./requests');
 
 const { extractTimeTable, dateFormat } = require('./timetable');
-const classes = require('../data/classes.json');
 
-const filterToBook = (lessons) => {
+const filterToBook = (lessons, classes) => {
+  
   let classesToBook = Object.keys(classes)
     .filter(date => (
       // Is the class minus 1 days at 7am same or before current date / time
@@ -57,12 +57,13 @@ const bookClasses = (lessons) => {
   throw new Error('No lessons to book today');
 };
 
-const main = (email, password) => {
+const main = (email, password, classes) => {
+  const classesToFilter = classes || require('../data/classes.json');
   login({ shouldSetCookies: true })
     .then(() => login({ email, password }))
     .then(getGymboxTimeTable)
     .then(extractTimeTable)
-    .then(filterToBook)
+    .then(lessons => filterToBook(lessons, classesToFilter))
     .then(bookClasses)
     .then(() => getActiveNotices('https://gymbox.legendonlineservices.co.uk/enterprise/Basket/'))
     .then(completeBasket)
@@ -89,6 +90,19 @@ const main = (email, password) => {
     })
 };
 
+const book = (email, password, date, className, time) => {
+
+  console.log(`using email=${email}, password=****, date=${date}, className=${className}, time=${time}`);
+
+  const classesToFilter = {};
+  classesToFilter[date] = {};
+  classesToFilter[date].className = className;
+  classesToFilter[date].time = time;
+
+  main(email, password, classesToFilter);
+};
+
 module.exports = {
-  main
+  main,
+  book
 };
