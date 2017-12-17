@@ -10,30 +10,31 @@ const {
 } = require('./requests');
 
 const { extractTimeTable, dateFormat } = require('./timetable');
-const classes = require('../data/classes.json');
+const classesByDate = require('../data/classes.json');
+const classesByDay = require('../data/classesByDay.json');
 
-const filterToBook = (lessons) => {
+const filterToBook = (classes, getClassDate) => (lessons) => {
   let classesToBook = Object.keys(classes)
-    .filter(date => (
+    .filter(key => (
       // Is the class minus 1 days at 7am same or before current date / time
-      moment(date)
+      getClassDate(key)
         .subtract(1, 'day')
         .hour(7)
         .minute(0)
         .second(0)
         .isSameOrBefore(moment()) &&
       // Is the class after current date / time
-      moment(date)
+      getClassDate(key)
         .hour(23)
         .minute(59)
         .second(59)
         .isSameOrAfter(moment())
     ))
-    .map(date => (
-      lessons[date]
+    .map(key => (
+      lessons[getClassDate(key).format('YYYY-MM-DD')]
         .find(l =>(
-          l.className === classes[date].className
-          && l.time === classes[date].time
+          l.className === classes[key].className
+          && l.time === classes[key].time
         ))
     ))
     .filter(Boolean);
@@ -47,6 +48,10 @@ const filterToBook = (lessons) => {
       return true;
     })
 };
+
+const filterToBookByDate = filterToBook(classesByDate, key => moment(key))
+const filterToBookByDay = filterToBook(classesByDay, key => moment(key, "ddd dddd"))
+const filterAllClassesToBook = (lessons) => filterToBookByDate(lessons).concat(filterToBookByDay(lessons))
 
 const bookClasses = (lessons) => {
   if (lessons && lessons.length > 0) {
@@ -62,7 +67,7 @@ const main = (email, password) => {
     .then(() => login({ email, password }))
     .then(getGymboxTimeTable)
     .then(extractTimeTable)
-    .then(filterToBook)
+    .then(filterAllClassesToBook)
     .then(bookClasses)
     .then(() => getActiveNotices('https://gymbox.legendonlineservices.co.uk/enterprise/Basket/'))
     .then(completeBasket)

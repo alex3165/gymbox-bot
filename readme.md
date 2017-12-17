@@ -17,10 +17,22 @@ First you need to add your `email` and `password` into a `./data/config.json`, e
 }
 ```
 
-Secondly you need to add the class you want to book to the `./data/classes.json` file:
+Secondly you need to add the class you want to book to either the `./data/classes.json` file, using the date as the key,
+or for recurring bookings by adding the class you want to book to the `./data/classesByDay.json` file. Format for 
+classes.json is:
 ```json
 {
   "2017-06-21": {
+    "className": "Gymnastic Conditioning",
+    "time": "12:15"
+  }
+}
+```
+
+Format for classesByDay.json is:
+```json
+{
+  "Monday": {
     "className": "Gymnastic Conditioning",
     "time": "12:15"
   }
