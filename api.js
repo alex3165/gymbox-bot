@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const { Observable } = require('rxjs');
 const { pick } = require('ramda');
-const { login, getGymboxTimeTable } = require('./dist/requests');
+const { login, getGymboxTimeTable, getGymboxTimeTableById, getGymboxTimeTables, getBookableClubs } = require('./dist/requests');
 const { extractTimeTable } = require('./dist/timetable');
 const { createRxMiddleware } = require('./dist/utils/rx-middleware');
 const { readfile, writeFile } = require('./dist/utils/rx-fs');
@@ -33,7 +33,13 @@ app.get('/api/table', createRxMiddleware((req$) =>
     .flatMap(() =>
       Observable
         .fromPromise(login({ shouldSetCookies: true }).then(() => login({ email, password })))
-        .flatMap(() => Observable.fromPromise(getGymboxTimeTable()))
+        .flatMap(() => Observable.fromPromise(getBookableClubs()))
+        .flatMap((clubs) => {
+            var parsedClubs = JSON.parse(clubs);
+            parsedClubs.map((club) => 
+              Observable.fromPromise(getGymboxTimeTableById(club.id))  
+            )
+        })
         .flatMap(extractTimeTable)
         .catch((err) => {
           console.error('Couldnt get the time table')
