@@ -6,6 +6,7 @@ const loginUrl = `${baseUrl}/account/login`;
 const timeTableUrl = `${baseUrl}/BookingsCentre/MemberTimetable`;
 const bookClassUrl = `${baseUrl}/BookingsCentre/AddBooking`;
 const activeNotices = `${baseUrl}/notices/activenotices`;
+const getClubsUrl = `${baseUrl}/mobile/getfacilities`;
 
 const completeBasketUrl = `${baseUrl}/Basket/Pay`;
 const confirmUrl = `${baseUrl}/basket/paymentconfirmed`;
@@ -86,6 +87,58 @@ module.exports = {
           return rej(err);
         }
       );
+    });
+  },
+  getBookableClubs() {
+    return new Promise((res, rej) => {
+      request.get({
+        url: getClubsUrl,
+        headers: {
+          'Cookie': cookies
+        }
+      }, (err, _, body) => {
+        if (!err) {
+          console.log('Fetched bookable clubs');
+          return res(body);
+        }
+        return rej(err);
+      });
+    });
+  },
+  getGymboxTimeTables(clubs) {
+    var id = clubs[0];
+    console.log(id);
+    return new Promise((res, rej) => {
+      request.get({
+        url: `${timeTableUrl}?clubId=${id}`,
+        headers: {
+          'Cookie': cookies
+        }
+      }, (err, _, body) => {
+        if (!err) {
+          console.log('Fetched time table');
+          return res(body);
+        }
+
+        return rej(err);
+      });
+    });
+  },
+  getGymboxTimeTableById(id) {
+    return new Promise((res, rej) => {
+      request.get({
+        url: `${timeTableUrl}?clubId=${id}`,
+        headers: {
+          'Cookie': cookies
+        }
+      }, (err, _, body) => {
+        if (!err) {
+          console.log('Fetched time table');
+          return res(body);
+        }
+
+        return rej(err);
+      });
     });
   },
   getGymboxTimeTable() {

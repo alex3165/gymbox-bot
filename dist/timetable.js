@@ -7,10 +7,16 @@ const extractTimeTable = body => {
   return new Promise((res, reject) => {
     const timeTable = /<table id=\'MemberTimetable\'.*<\/table>/.exec(body)[0];
 
+    //TODO: Fix when no dropdown is found - .test()?
+    const selectedClub = /<option selected=\'selected\'.*?<\/option>/g.exec(body)[0];
+
+    const clubName = cheerio.load(selectedClub).text();
+    const clubId = cheerio.load(selectedClub)('option').val().replace('MemberTimetable?clubId=', '');
+
     parseString(cheerio.load(timeTable).xml(), (err, result) => {
       if (!err) {
         console.log('Extracted time table');
-        return res(formatTimeTable(result));
+        return res(formatTimeTable(clubName, clubId, result));
       }
 
       return reject(err);
@@ -18,7 +24,7 @@ const extractTimeTable = body => {
   });
 };
 
-const formatTimeTable = timeTable => {
+const formatTimeTable = (clubName, clubId, timeTable) => {
   return timeTable.table.tr.reduce((acc, tr) => {
     if (tr.$ && tr.$.class === 'dayHeader') {
       const date = moment(tr.td[0].h5[0].trim(), 'dddd - DD MMMM YYYY');
@@ -32,6 +38,8 @@ const formatTimeTable = timeTable => {
         id: parseInt(tr.td[5].span[0].a[0].$.rel.split('=')[1]),
         className: tr.td[1].span[0].a[0]._,
         time: tr.td[0].span[0]._,
+        clubName: clubName || '',
+        clubId: clubId || '',
         canBook: !(tr.td[6] === 'Full' || tr.td[6] === 'Past')
       });
     }
@@ -42,5 +50,6 @@ const formatTimeTable = timeTable => {
 
 module.exports = {
   extractTimeTable,
+  extractBookableClubs,
   dateFormat
 };
