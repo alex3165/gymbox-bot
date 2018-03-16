@@ -3,13 +3,15 @@ const {
   login,
   logout,
   getGymboxTimeTable,
+  getGymboxTimeTableById,
+  getBookableClubs,
   postBooking,
   getActiveNotices,
   completeBasket,
   confirmPayment
 } = require('./requests');
 
-const { extractTimeTable, dateFormat } = require('./timetable');
+const { extractTimeTable, dateFormat, combineTimeTables } = require('./timetable');
 const classesByDate = require('../data/classes.json');
 const classesByDay = require('../data/classesByDay.json');
 
@@ -35,6 +37,7 @@ const filterToBook = (classes, getClassDate) => (lessons) => {
         .find(l =>(
           l.className === classes[key].className
           && l.time === classes[key].time
+          && l.location === classes[key].clubName
         ))
     ))
     .filter(Boolean);
@@ -62,11 +65,20 @@ const bookClasses = (lessons) => {
   throw new Error('No lessons to book today');
 };
 
+const getGymboxTimeTables = (allClubs) => {
+  var clubs = JSON.parse(allClubs);
+  return Promise.all(clubs.map(
+          (club) => getGymboxTimeTableById(club.Id)
+                      .then(extractTimeTable)
+         ));
+}
+
 const main = (email, password) => {
   login({ shouldSetCookies: true })
     .then(() => login({ email, password }))
-    .then(getGymboxTimeTable)
-    .then(extractTimeTable)
+    .then(getBookableClubs)
+    .then(getGymboxTimeTables)
+    .then(combineTimeTables)
     .then(filterAllClassesToBook)
     .then(bookClasses)
     .then(() => getActiveNotices('https://gymbox.legendonlineservices.co.uk/enterprise/Basket/'))
@@ -83,10 +95,12 @@ const main = (email, password) => {
 
         if (err instanceof Error) {
           errorMessage = err.message;
+          console.log(err)
         }
 
         if (typeof err === 'object' && err.Message) {
           errorMessage = err.Message;
+
         }
 
         console.error('Logged out, error: ', errorMessage);
