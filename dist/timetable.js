@@ -3,23 +3,6 @@ const cheerio = require('cheerio');
 const parseString = require('xml2js').parseString;
 const dateFormat = "YYYY-MM-DD";
 
-const extractBookableClubs = (body) => {
-  return new Promise((res, reject) => {
-    //TODO: Fix when no dropdown is found - .test()?
-    const clubsList = /<select onchange="publicTimetableHref\(this\)"[\s\S]*?<\/select>/.exec(body)[0];
-    const $ = cheerio.load(clubsList);
-    var list = [];
-    
-    $('option').each(function (index, element) {
-        list.push($(this).val().replace('MemberTimetable?clubId=', ''));
-    });
-
-    console.log(`Extracted list of club ids: ${list}`);
-
-    res();
-  });
-};
-
 const extractTimeTable = (body) => {
   return new Promise((res, reject) => {
     const timeTable = /<table id=\'MemberTimetable\'.*<\/table>/.exec(body)[0];
@@ -69,6 +52,5 @@ const formatTimeTable = (clubName, clubId, timeTable) => {
 
 module.exports = {
   extractTimeTable,
-  extractBookableClubs,
   dateFormat
 };
