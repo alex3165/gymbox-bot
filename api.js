@@ -34,15 +34,16 @@ app.get('/api/table', createRxMiddleware((req$) =>
       Observable
         .fromPromise(login({ shouldSetCookies: true }).then(() => login({ email, password })))
         .flatMap(() => Observable.fromPromise(getBookableClubs()))
-        .flatMap((clubs) => {
-            var parsedClubs = JSON.parse(clubs);
-            parsedClubs.map((club) => 
-              Observable.fromPromise(getGymboxTimeTableById(club.id))  
-            )
+        .flatMap((res) => {
+            var clubs = JSON.parse(res);
+            return Observable.forkJoin(...clubs.map(
+              (club) => getGymboxTimeTableById(club.Id)
+                          .then(extractTimeTable)
+            ))
         })
-        .flatMap(extractTimeTable)
         .catch((err) => {
-          console.error('Couldnt get the time table')
+          console.log(err);
+          console.error('Couldn\'t get the time table')
           // throw new Error(err);
         })
     )

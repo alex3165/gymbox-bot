@@ -50,6 +50,5 @@ const formatTimeTable = (clubName, clubId, timeTable) => {
 
 module.exports = {
   extractTimeTable,
-  extractBookableClubs,
   dateFormat
 };
