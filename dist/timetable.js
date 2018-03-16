@@ -14,8 +14,8 @@ const extractTimeTable = body => {
     const clubId = cheerio.load(selectedClub)('option').val().replace('MemberTimetable?clubId=', '');
 
     parseString(cheerio.load(timeTable).xml(), (err, result) => {
-      if (!err) {
-        console.log('Extracted time table');
+      if(!err) {
+        console.log(`Extracted time table for ${clubName}`);
         return res(formatTimeTable(clubName, clubId, result));
       }
 
@@ -48,7 +48,19 @@ const formatTimeTable = (clubName, clubId, timeTable) => {
   }, {});
 };
 
+const combineTimeTables = (timeTables) => {
+  return new Promise((res, reject) => {
+    return res(timeTables.reduce(function(r, e) {
+      return Object.keys(e).forEach(function(k) {
+        if(!r[k]) r[k] = [].concat(e[k])
+        else r[k] = r[k].concat(e[k])
+      }), r
+    }, {}));
+  });
+}
+
 module.exports = {
   extractTimeTable,
+  combineTimeTables,
   dateFormat
 };

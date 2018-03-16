@@ -3,7 +3,7 @@ const app = express();
 const { Observable } = require('rxjs');
 const { pick } = require('ramda');
 const { login, getGymboxTimeTable, getGymboxTimeTableById, getGymboxTimeTables, getBookableClubs } = require('./dist/requests');
-const { extractTimeTable } = require('./dist/timetable');
+const { extractTimeTable, combineTimeTables } = require('./dist/timetable');
 const { createRxMiddleware } = require('./dist/utils/rx-middleware');
 const { readfile, writeFile } = require('./dist/utils/rx-fs');
 const config = require('./data/config.json');
@@ -41,8 +41,8 @@ app.get('/api/table', createRxMiddleware((req$) =>
                           .then(extractTimeTable)
             ))
         })
+        .flatMap(combineTimeTables)
         .catch((err) => {
-          console.log(err);
           console.error('Couldn\'t get the time table')
           // throw new Error(err);
         })
