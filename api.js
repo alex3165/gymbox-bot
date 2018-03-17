@@ -37,8 +37,7 @@ app.get('/api/table', createRxMiddleware((req$) =>
         .flatMap((res) => {
             var clubs = JSON.parse(res);
             return Observable.forkJoin(...clubs.map(
-              (club) => getGymboxTimeTableById(club.Id)
-                          .then(extractTimeTable)
+              (club) => getGymboxTimeTableById(club.Id).then((body) => extractTimeTable(club.Name, body))
             ))
         })
         .flatMap(combineTimeTables)

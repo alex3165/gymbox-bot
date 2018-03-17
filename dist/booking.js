@@ -68,8 +68,7 @@ const bookClasses = (lessons) => {
 const getGymboxTimeTables = (allClubs) => {
   var clubs = JSON.parse(allClubs);
   return Promise.all(clubs.map(
-          (club) => getGymboxTimeTableById(club.Id)
-                      .then(extractTimeTable)
+          (club) => getGymboxTimeTableById(club.Id).then((body) => extractTimeTable(club.Name, body))
          ));
 }
 
