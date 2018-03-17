@@ -3,20 +3,14 @@ const cheerio = require('cheerio');
 const parseString = require('xml2js').parseString;
 const dateFormat = 'YYYY-MM-DD';
 
-const extractTimeTable = body => {
+const extractTimeTable = (clubLocation, body) => {
   return new Promise((res, reject) => {
     const timeTable = /<table id=\'MemberTimetable\'.*<\/table>/.exec(body)[0];
 
-    //TODO: Fix when no dropdown is found - .test()?
-    const selectedClub = /<option selected=\'selected\'.*?<\/option>/g.exec(body)[0];
-
-    const clubName = cheerio.load(selectedClub).text();
-    const clubId = cheerio.load(selectedClub)('option').val().replace('MemberTimetable?clubId=', '');
-
     parseString(cheerio.load(timeTable).xml(), (err, result) => {
       if(!err) {
-        console.log(`Extracted time table for ${clubName}`);
-        return res(formatTimeTable(clubName, clubId, result));
+        console.log(`Extracted time table for ${clubLocation}`);
+        return res(formatTimeTable(clubLocation, result));
       }
 
       return reject(err);
@@ -24,7 +18,7 @@ const extractTimeTable = body => {
   });
 };
 
-const formatTimeTable = (clubName, clubId, timeTable) => {
+const formatTimeTable = (clubLocation, timeTable) => {
   return timeTable.table.tr.reduce((acc, tr) => {
     if (tr.$ && tr.$.class === 'dayHeader') {
       const date = moment(tr.td[0].h5[0].trim(), 'dddd - DD MMMM YYYY');
@@ -38,11 +32,12 @@ const formatTimeTable = (clubName, clubId, timeTable) => {
         id: parseInt(tr.td[5].span[0].a[0].$.rel.split('=')[1]),
         className: tr.td[1].span[0].a[0]._,
         time: tr.td[0].span[0]._,
-        clubName: clubName || '',
-        clubId: clubId || '',
-        canBook: !(tr.td[6] === 'Full' || tr.td[6] === 'Past')
+        location: clubLocation,
+        canBook: !(tr.td[7] === 'Add To Waiting List' || tr.td[7] === 'Past')
       });
     }
+
+    // Object.keys(acc).forEach(k => (!acc[k] && acc[k] !== undefined) && delete acc[k]);
 
     return acc;
   }, {});
