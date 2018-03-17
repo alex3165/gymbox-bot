@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const { Observable } = require('rxjs');
 const { pick } = require('ramda');
-const { login, getGymboxTimeTable, getGymboxTimeTableById, getGymboxTimeTables, getBookableClubs } = require('./dist/requests');
+const { login, getGymboxTimeTable, getGymboxTimeTableById, getGymboxTimeTables, getAllClubs } = require('./dist/requests');
 const { extractTimeTable, combineTimeTables } = require('./dist/timetable');
 const { createRxMiddleware } = require('./dist/utils/rx-middleware');
 const { readfile, writeFile } = require('./dist/utils/rx-fs');
@@ -33,7 +33,7 @@ app.get('/api/table', createRxMiddleware((req$) =>
     .flatMap(() =>
       Observable
         .fromPromise(login({ shouldSetCookies: true }).then(() => login({ email, password })))
-        .flatMap(() => Observable.fromPromise(getBookableClubs()))
+        .flatMap(() => Observable.fromPromise(getAllClubs()))
         .flatMap((res) => {
             var clubs = JSON.parse(res);
             return Observable.forkJoin(...clubs.map(

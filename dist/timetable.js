@@ -37,9 +37,6 @@ const formatTimeTable = (clubLocation, timeTable) => {
         canBook: !(tr.td[7] === 'Add To Waiting List' || tr.td[7] === 'Past')
       });
     }
-
-    // Object.keys(acc).forEach(k => (!acc[k] && acc[k] !== undefined) && delete acc[k]);
-
     return acc;
 
   }, {});
