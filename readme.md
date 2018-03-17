@@ -24,7 +24,8 @@ classes.json is:
 {
   "2017-06-21": {
     "className": "Gymnastic Conditioning",
-    "time": "12:15"
+    "time": "12:15",
+    "location": "Farringdon"
   }
 }
 ```
@@ -34,7 +35,8 @@ Format for classesByDay.json is:
 {
   "Monday": {
     "className": "Gymnastic Conditioning",
-    "time": "12:15"
+    "time": "12:15",
+    "location": "Farringdon"
   }
 }
 ```
