@@ -89,7 +89,7 @@ module.exports = {
       );
     });
   },
-  getBookableClubs() {
+  getAllClubs() {
     return new Promise((res, rej) => {
       request.get({
         url: getClubsUrl,

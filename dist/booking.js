@@ -4,7 +4,7 @@ const {
   logout,
   getGymboxTimeTable,
   getGymboxTimeTableById,
-  getBookableClubs,
+  getAllClubs,
   postBooking,
   getActiveNotices,
   completeBasket,
@@ -80,7 +80,7 @@ const getGymboxTimeTables = (allClubs) => {
 const main = (email, password) => {
   login({ shouldSetCookies: true })
     .then(() => login({ email, password }))
-    .then(getBookableClubs)
+    .then(getAllClubs)
     .then(getGymboxTimeTables)
     .then(combineTimeTables)
     .then(filterAllClassesToBook)
