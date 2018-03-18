@@ -21,53 +21,58 @@ const addClass = (classes, newClass) => {
   }
 
   return copiedClasses;
-}
+};
 
 /**
-* Get the time table
-* params: void
-* return: Object
-*/
-app.get('/api/table', createRxMiddleware((req$) =>
-  req$
-    .flatMap(() =>
-      Observable
-        .fromPromise(login({ shouldSetCookies: true }).then(() => login({ email, password })))
+ * Get the time table
+ * params: void
+ * return: Object
+ */
+app.get(
+  '/api/table',
+  createRxMiddleware(req$ =>
+    req$.flatMap(() =>
+      Observable.fromPromise(
+        login({ shouldSetCookies: true }).then(() => login({ email, password }))
+      )
         .flatMap(() => Observable.fromPromise(getGymboxTimeTable()))
         .flatMap(extractTimeTable)
-        .catch((err) => {
-          console.error('Couldnt get the time table')
+        .catch(err => {
+          console.error('Couldnt get the time table');
           // throw new Error(err);
         })
     )
-));
+  )
+);
 
 /**
-* Add a class to book using the booking script
-* params: { className: "Name_of_class", time: "HH:mm", date: "YYYY-MM-DD" }
-* return: Object | String
-*/
-app.get('/api/add', createRxMiddleware((req$) =>
-  Observable
-    .combineLatest(req$, readfile('./classes.json'))
-    .flatMap(([req, file]) => {
-      const newClass = pick(['className', 'time', 'date'], req.query);
+ * Add a class to book using the booking script
+ * params: { className: "Name_of_class", time: "HH:mm", date: "YYYY-MM-DD" }
+ * return: Object | String
+ */
+app.get(
+  '/api/add',
+  createRxMiddleware(req$ =>
+    Observable.combineLatest(req$, readfile('./classes.json'))
+      .flatMap(([req, file]) => {
+        const newClass = pick(['className', 'time', 'date'], req.query);
 
-      if (Object.keys(newClass).length < 3) {
-        throw new Error('Missing parameter');
-      }
+        if (Object.keys(newClass).length < 3) {
+          throw new Error('Missing parameter');
+        }
 
-      const classes = JSON.parse(file);
-      const res = addClass(classes, newClass);
+        const classes = JSON.parse(file);
+        const res = addClass(classes, newClass);
 
-      return writeFile('./classes.json', JSON.stringify(res));
-    })
-    .map(() => ({ status: 'Successfuly added class' }))
-    .catch((err) => {
-      console.error('Couldn\'t add the class');
-      // throw new Error(err);
-    })
-));
+        return writeFile('./classes.json', JSON.stringify(res));
+      })
+      .map(() => ({ status: 'Successfuly added class' }))
+      .catch(err => {
+        console.error("Couldn't add the class");
+        // throw new Error(err);
+      })
+  )
+);
 
 // Start the app and listen on port 3000
 app.listen(3002);

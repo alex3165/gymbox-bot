@@ -22,4 +22,3 @@ if (commandValue === 'run') {
   console.log(`Run booking of classes process with email: ${email}`);
   main(email, password);
 }
-

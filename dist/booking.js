@@ -13,49 +13,54 @@ const { extractTimeTable, dateFormat } = require('./timetable');
 const classesByDate = require('../data/classes.json');
 const classesByDay = require('../data/classesByDay.json');
 
-const filterToBook = (classes, getClassDate) => (lessons) => {
+const filterToBook = (classes, getClassDate) => lessons => {
   let classesToBook = Object.keys(classes)
-    .filter(key => (
-      // Is the class minus 1 days at 7am same or before current date / time
-      getClassDate(key)
-        .subtract(1, 'day')
-        .hour(7)
-        .minute(0)
-        .second(0)
-        .isSameOrBefore(moment()) &&
-      // Is the class after current date / time
-      getClassDate(key)
-        .hour(23)
-        .minute(59)
-        .second(59)
-        .isSameOrAfter(moment())
-    ))
-    .map(key => (
-      lessons[getClassDate(key).format('YYYY-MM-DD')]
-        .find(l =>(
-          l.className === classes[key].className
-          && l.time === classes[key].time
-        ))
-    ))
+    .filter(
+      key =>
+        // Is the class minus 1 days at 7am same or before current date / time
+        getClassDate(key)
+          .subtract(1, 'day')
+          .hour(7)
+          .minute(0)
+          .second(0)
+          .isSameOrBefore(moment()) &&
+        // Is the class after current date / time
+        getClassDate(key)
+          .hour(23)
+          .minute(59)
+          .second(59)
+          .isSameOrAfter(moment())
+    )
+    .map(key =>
+      lessons[getClassDate(key).format('YYYY-MM-DD')].find(
+        l =>
+          l.className === classes[key].className && l.time === classes[key].time
+      )
+    )
     .filter(Boolean);
 
-    return classesToBook.filter(l => {
-      if (!l.canBook) {
-        console.log(`Can't book class ${l.className} at ${l.time}`)
-        return false
-      }
+  return classesToBook.filter(l => {
+    if (!l.canBook) {
+      console.log(`Can't book class ${l.className} at ${l.time}`);
+      return false;
+    }
 
-      return true;
-    })
+    return true;
+  });
 };
 
-const filterToBookByDate = filterToBook(classesByDate, key => moment(key))
-const filterToBookByDay = filterToBook(classesByDay, key => moment(key, "ddd dddd"))
-const filterAllClassesToBook = (lessons) => filterToBookByDate(lessons).concat(filterToBookByDay(lessons))
+const filterToBookByDate = filterToBook(classesByDate, key => moment(key));
+const filterToBookByDay = filterToBook(classesByDay, key =>
+  moment(key, 'ddd dddd')
+);
+const filterAllClassesToBook = lessons =>
+  filterToBookByDate(lessons).concat(filterToBookByDay(lessons));
 
-const bookClasses = (lessons) => {
+const bookClasses = lessons => {
   if (lessons && lessons.length > 0) {
-    console.log(`Lessons ready to book: ${lessons.map(l => l.className).join(' ')}`);
+    console.log(
+      `Lessons ready to book: ${lessons.map(l => l.className).join(' ')}`
+    );
     return Promise.all(lessons.map(postBooking));
   }
 
@@ -69,7 +74,11 @@ const main = (email, password) => {
     .then(extractTimeTable)
     .then(filterAllClassesToBook)
     .then(bookClasses)
-    .then(() => getActiveNotices('https://gymbox.legendonlineservices.co.uk/enterprise/Basket/'))
+    .then(() =>
+      getActiveNotices(
+        'https://gymbox.legendonlineservices.co.uk/enterprise/Basket/'
+      )
+    )
     .then(completeBasket)
     .then(confirmPayment)
     .then(logout)
@@ -90,8 +99,8 @@ const main = (email, password) => {
         }
 
         console.error('Logged out, error: ', errorMessage);
-      })
-    })
+      });
+    });
 };
 
 module.exports = {

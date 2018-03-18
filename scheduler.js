@@ -14,23 +14,22 @@ const run = () => {
   console.log('_____________________________________________');
   console.log(`Running booking at ${moment().format()}`);
   main(email, password);
-}
+};
 
 const getTimezonedhour = () => {
   const machineHour = momentTz.tz(momentTz.tz.guess()).hour();
   const BSTHour = momentTz.tz('Europe/London').hour();
   return 7 + (machineHour - BSTHour);
-}
+};
 
 const finalCron = CRON || `0 ${getTimezonedhour()} * * *`;
 
 console.log(`Running scheduler with Cron: ${finalCron}`);
 
 /**
-* Run everyday at 7am, BST time (retry every 5 minutes for 2 hours after 7am)
-*/
+ * Run everyday at 7am, BST time (retry every 5 minutes for 2 hours after 7am)
+ */
 cron.schedule(finalCron, () => {
-
   run();
 
   // Retry for 2 hours
