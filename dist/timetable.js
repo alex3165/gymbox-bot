@@ -40,16 +40,13 @@ const formatTimeTable = (clubLocation, timeTable) => {
   }, {});
 };
 
-const combineTimeTables = (timeTables) => {
-  return new Promise((res, reject) => {
-    return res(timeTables.reduce(function(r, e) {
-      return Object.keys(e).forEach(function(k) {
-        if(!r[k]) r[k] = [].concat(e[k])
-        else r[k] = r[k].concat(e[k])
-      }), r
-    }, {}));
-  });
-}
+const combineTimeTables = (timeTables) => 
+  timeTables.reduce(function(r, e) {
+    return Object.keys(e).forEach(function(k) {
+      if(!r[k]) r[k] = [].concat(e[k])
+      else r[k] = r[k].concat(e[k])
+    }), r
+  }, {});
 
 module.exports = {
   extractTimeTable,
