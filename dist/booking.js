@@ -37,7 +37,7 @@ const filterToBook = (classes, getClassDate) => lessons => {
         .find(l =>(
           l.className === classes[key].className
           && l.time === classes[key].time
-          && l.location === classes[key].clubName
+          && l.location === classes[key].location
         ))
     ))
     .filter(Boolean);
