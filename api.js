@@ -40,7 +40,7 @@ app.get('/api/table', createRxMiddleware((req$) =>
               (club) => getGymboxTimeTableById(club.Id).then((body) => extractTimeTable(club.Name, body))
             ))
         })
-        .flatMap(combineTimeTables)
+        .map(combineTimeTables)
         .catch((err) => {
           console.error('Couldn\'t get the time table')
           // throw new Error(err);
