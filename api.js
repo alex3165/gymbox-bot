@@ -2,8 +2,8 @@ const express = require('express');
 const app = express();
 const { Observable } = require('rxjs');
 const { pick } = require('ramda');
-const { login, getGymboxTimeTable } = require('./dist/requests');
-const { extractTimeTable } = require('./dist/timetable');
+const { login, getGymboxTimeTable, getGymboxTimeTableById, getGymboxTimeTables, getAllClubs } = require('./dist/requests');
+const { extractTimeTable, combineTimeTables } = require('./dist/timetable');
 const { createRxMiddleware } = require('./dist/utils/rx-middleware');
 const { readfile, writeFile } = require('./dist/utils/rx-fs');
 const config = require('./data/config.json');
@@ -28,22 +28,25 @@ const addClass = (classes, newClass) => {
  * params: void
  * return: Object
  */
-app.get(
-  '/api/table',
-  createRxMiddleware(req$ =>
-    req$.flatMap(() =>
-      Observable.fromPromise(
-        login({ shouldSetCookies: true }).then(() => login({ email, password }))
-      )
-        .flatMap(() => Observable.fromPromise(getGymboxTimeTable()))
-        .flatMap(extractTimeTable)
-        .catch(err => {
-          console.error('Couldnt get the time table');
+app.get('/api/table', createRxMiddleware((req$) =>
+  req$
+    .flatMap(() =>
+      Observable
+        .fromPromise(login({ shouldSetCookies: true }).then(() => login({ email, password })))
+        .flatMap(() => Observable.fromPromise(getAllClubs()))
+        .flatMap((res) => {
+            var clubs = JSON.parse(res);
+            return Observable.forkJoin(...clubs.map(
+              (club) => getGymboxTimeTableById(club.Id).then((body) => extractTimeTable(club.Name, body))
+            ))
+        })
+        .map(combineTimeTables)
+        .catch((err) => {
+          console.error('Couldn\'t get the time table')
           // throw new Error(err);
         })
     )
-  )
-);
+));
 
 /**
  * Add a class to book using the booking script
