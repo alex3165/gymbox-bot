@@ -60,6 +60,7 @@ app.get(
         .catch(err => {
           console.error("Couldn't get the time table");
           console.error(err);
+          return Observable.of({ error: err });
         });
     })
   )
