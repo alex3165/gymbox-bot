@@ -2,7 +2,11 @@ const express = require('express');
 const app = express();
 const { Observable } = require('rxjs');
 const { pick } = require('ramda');
-const { login, getGymboxTimeTable, getGymboxTimeTableById, getGymboxTimeTables, getAllClubs } = require('./dist/requests');
+const {
+  login,
+  getGymboxTimeTableById,
+  getAllClubs
+} = require('./dist/requests');
 const { extractTimeTable, combineTimeTables } = require('./dist/timetable');
 const { createRxMiddleware } = require('./dist/utils/rx-middleware');
 const { readfile, writeFile } = require('./dist/utils/rx-fs');
@@ -28,25 +32,32 @@ const addClass = (classes, newClass) => {
  * params: void
  * return: Object
  */
-app.get('/api/table', createRxMiddleware((req$) =>
-  req$
-    .flatMap(() =>
-      Observable
-        .fromPromise(login({ shouldSetCookies: true }).then(() => login({ email, password })))
+app.get(
+  '/api/table',
+  createRxMiddleware(req$ =>
+    req$.flatMap(() =>
+      Observable.fromPromise(
+        login({ shouldSetCookies: true }).then(() => login({ email, password }))
+      )
         .flatMap(() => Observable.fromPromise(getAllClubs()))
-        .flatMap((res) => {
-            var clubs = JSON.parse(res);
-            return Observable.forkJoin(...clubs.map(
-              (club) => getGymboxTimeTableById(club.Id).then((body) => extractTimeTable(club.Name, body))
-            ))
+        .flatMap(res => {
+          var clubs = JSON.parse(res);
+          const timetables = clubs.map(club =>
+            getGymboxTimeTableById(club.Id).then(body =>
+              extractTimeTable(club.Name, body)
+            )
+          );
+
+          return Observable.fromPromise(Promise.all(timetables));
         })
         .map(combineTimeTables)
-        .catch((err) => {
-          console.error('Couldn\'t get the time table')
-          // throw new Error(err);
+        .catch(err => {
+          console.error("Couldn't get the time table");
+          console.error(err);
         })
     )
-));
+  )
+);
 
 /**
  * Add a class to book using the booking script

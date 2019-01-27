@@ -1,5 +1,4 @@
 const { Observable } = require('rxjs');
-const express = require('express');
 
 const createRxMiddleware = (trigger, successCode = 200) => (req, res, next) => {
   trigger(Observable.of(req))

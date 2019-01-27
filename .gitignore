@@ -5,3 +5,4 @@ up.sh
 .idea
 session.json
 classesByDay.json
+yarn.lock
