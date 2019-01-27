@@ -11,35 +11,36 @@ const {
   confirmPayment
 } = require('./requests');
 
-const { extractTimeTable, dateFormat, combineTimeTables } = require('./timetable');
+const { extractTimeTable, combineTimeTables } = require('./timetable');
 const classesByDate = require('../data/classes.json');
 const classesByDay = require('../data/classesByDay.json');
 
 const filterToBook = (classes, getClassDate) => lessons => {
   let classesToBook = Object.keys(classes)
-    .filter(key => (
-      // Is the class minus 1 days at 7am same or before current date / time
-      getClassDate(key)
-        .subtract(1, 'day')
-        .hour(7)
-        .minute(0)
-        .second(0)
-        .isSameOrBefore(moment()) &&
-      // Is the class after current date / time
-      getClassDate(key)
-        .hour(23)
-        .minute(59)
-        .second(59)
-        .isSameOrAfter(moment())
-    ))
-    .map(key => (
-      lessons[getClassDate(key).format('YYYY-MM-DD')]
-        .find(l =>(
-          l.className === classes[key].className
-          && l.time === classes[key].time
-          && l.location === classes[key].location
-        ))
-    ))
+    .filter(
+      key =>
+        // Is the class minus 1 days at 7am same or before current date / time
+        getClassDate(key)
+          .subtract(1, 'day')
+          .hour(7)
+          .minute(0)
+          .second(0)
+          .isSameOrBefore(moment()) &&
+        // Is the class after current date / time
+        getClassDate(key)
+          .hour(23)
+          .minute(59)
+          .second(59)
+          .isSameOrAfter(moment())
+    )
+    .map(key =>
+      lessons[getClassDate(key).format('YYYY-MM-DD')].find(
+        l =>
+          l.className === classes[key].className &&
+          l.time === classes[key].time &&
+          l.location === classes[key].location
+      )
+    )
     .filter(Boolean);
 
   return classesToBook.filter(l => {
@@ -70,12 +71,16 @@ const bookClasses = lessons => {
   throw new Error('No lessons to book today');
 };
 
-const getGymboxTimeTables = (allClubs) => {
+const getGymboxTimeTables = allClubs => {
   var clubs = JSON.parse(allClubs);
-  return Promise.all(clubs.map(
-          (club) => getGymboxTimeTableById(club.Id).then((body) => extractTimeTable(club.Name, body))
-         ));
-}
+  return Promise.all(
+    clubs.map(club =>
+      getGymboxTimeTableById(club.Id).then(body =>
+        extractTimeTable(club.Name, body)
+      )
+    )
+  );
+};
 
 const main = (email, password) => {
   login({ shouldSetCookies: true })
@@ -103,12 +108,11 @@ const main = (email, password) => {
 
         if (err instanceof Error) {
           errorMessage = err.message;
-          console.log(err)
+          console.log(err);
         }
 
         if (typeof err === 'object' && err.Message) {
           errorMessage = err.Message;
-
         }
 
         console.error('Logged out, error: ', errorMessage);
