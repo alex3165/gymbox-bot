@@ -10,9 +10,7 @@ const {
 const { extractTimeTable, combineTimeTables } = require('./dist/timetable');
 const { createRxMiddleware } = require('./dist/utils/rx-middleware');
 const { readfile, writeFile } = require('./dist/utils/rx-fs');
-const config = require('./data/config.json');
-const { getUserLoginDetails } = require('./dist/utils/login');
-const { email, password } = getUserLoginDetails(config);
+const classesPath = './data/classes.json';
 
 const addClass = (classes, newClass) => {
   const copiedClasses = Object.assign({}, classes);
@@ -35,9 +33,17 @@ const addClass = (classes, newClass) => {
 app.get(
   '/api/table',
   createRxMiddleware(req$ =>
-    req$.flatMap(() =>
-      Observable.fromPromise(
-        login({ shouldSetCookies: true }).then(() => login({ email, password }))
+    req$.flatMap(req => {
+      if (!req.query.email || !req.query.password) {
+        return Observable.of({
+          message: 'Provide email and password query parameters'
+        });
+      }
+
+      return Observable.fromPromise(
+        login({ shouldSetCookies: true }).then(() =>
+          login({ email: req.query.email, password: req.query.password })
+        )
       )
         .flatMap(() => Observable.fromPromise(getAllClubs()))
         .flatMap(res => {
@@ -54,8 +60,8 @@ app.get(
         .catch(err => {
           console.error("Couldn't get the time table");
           console.error(err);
-        })
-    )
+        });
+    })
   )
 );
 
@@ -67,23 +73,41 @@ app.get(
 app.get(
   '/api/add',
   createRxMiddleware(req$ =>
-    Observable.combineLatest(req$, readfile('./classes.json'))
-      .flatMap(([req, file]) => {
-        const newClass = pick(['className', 'time', 'date'], req.query);
+    req$
+      .flatMap(req => {
+        if (!req.query.email || !req.query.password) {
+          return Observable.of({
+            message: 'Provide email and password query parameters'
+          });
+        }
 
-        if (Object.keys(newClass).length < 3) {
+        return Observable.fromPromise(
+          login({ shouldSetCookies: true }).then(() =>
+            login({ email: req.query.email, password: req.query.password })
+          )
+        );
+      })
+      .flatMap(() => Observable.combineLatest(req$, readfile(classesPath)))
+      .flatMap(([req, file]) => {
+        const newClass = pick(
+          ['className', 'time', 'date', 'location'],
+          req.query
+        );
+
+        if (Object.keys(newClass).length < 4) {
           throw new Error('Missing parameter');
         }
 
         const classes = JSON.parse(file);
         const res = addClass(classes, newClass);
 
-        return writeFile('./classes.json', JSON.stringify(res));
+        return writeFile(classesPath, JSON.stringify(res));
       })
       .map(() => ({ status: 'Successfuly added class' }))
       .catch(err => {
         console.error("Couldn't add the class");
-        // throw new Error(err);
+        console.error(err);
+        return Observable.of({ error: err.message });
       })
   )
 );

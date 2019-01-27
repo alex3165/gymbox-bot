@@ -56,15 +56,21 @@ module.exports = {
             // console.log('Set cookies', cookies);
             return res();
           }
-
-          if (!err && (_.statusCode === 302 || _.statusCode === 200)) {
+          // console.log(_);
+          if (
+            !err &&
+            (_.statusCode === 302 || _.statusCode === 200) &&
+            !body.includes('Login failed')
+          ) {
             console.log('Login succeed code: ', _.statusCode);
 
             return res();
           }
 
           console.error(`Couldn't login status: ${_.statusCode}`);
-          return rej(err);
+          return rej(
+            body.includes('Login failed') ? new Error('Login failed') : err
+          );
         }
       );
     });
@@ -91,35 +97,41 @@ module.exports = {
   },
   getAllClubs() {
     return new Promise((res, rej) => {
-      request.get({
-        url: getClubsUrl,
-        headers: {
-          'Cookie': cookies
+      request.get(
+        {
+          url: getClubsUrl,
+          headers: {
+            Cookie: cookies
+          }
+        },
+        (err, _, body) => {
+          if (!err) {
+            console.log('Fetched bookable clubs');
+            return res(body);
+          }
+          return rej(err);
         }
-      }, (err, _, body) => {
-        if (!err) {
-          console.log('Fetched bookable clubs');
-          return res(body);
-        }
-        return rej(err);
-      });
+      );
     });
   },
   getGymboxTimeTableById(id) {
     return new Promise((res, rej) => {
-      request.get({
-        url: `${timeTableUrl}?clubId=${id}`,
-        headers: {
-          'Cookie': cookies
-        }
-      }, (err, _, body) => {
-        if (!err) {
-          console.log(`Fetched time table for club Id ${id}`);
-          return res(body);
-        }
+      request.get(
+        {
+          url: `${timeTableUrl}?clubId=${id}`,
+          headers: {
+            Cookie: cookies
+          }
+        },
+        (err, _, body) => {
+          if (!err) {
+            console.log(`Fetched time table for club Id ${id}`);
+            return res(body);
+          }
 
-        return rej(err);
-      });
+          return rej(err);
+        }
+      );
     });
   },
   getGymboxTimeTable() {
