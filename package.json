@@ -7,10 +7,14 @@
     "book": "node cli.js",
     "schedule": "node scheduler.js",
     "api": "node api.js",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "set-config": "node scripts/set-config.js"
   },
   "lint-staged": {
-    "*.{js,json,css,md}": ["prettier --write", "git add"]
+    "*.{js,json,css,md}": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "repository": {
     "type": "git",
