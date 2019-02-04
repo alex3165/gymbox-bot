@@ -29,8 +29,9 @@ jobs:
   deploy:
     <<: *defaults
     steps:
+      - checkout
       - attach_workspace:
-        at: .
+          at: .
       - run: ls -la
 
 workflows:
