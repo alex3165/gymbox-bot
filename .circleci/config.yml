@@ -4,7 +4,7 @@ defaults: &defaults
 
 version: 2
 jobs:
-  set-config:
+  init:
     <<: *defaults
     steps:
       - checkout
@@ -13,6 +13,9 @@ jobs:
           root: .
           paths:
             - data/*
+            - dist/*
+            - ./api.js
+            - ./cli.js
 
   install:
     <<: *defaults
@@ -26,17 +29,18 @@ jobs:
   deploy:
     <<: *defaults
     steps:
-      - checkout
+      - attach_workspace:
+        at: .
       - run: ls -la
 
 workflows:
   version: 2
   release_branches:
     jobs:
-      - set-config
+      - init
       - install:
           requires:
-            - set-config
+            - init
       - deploy:
           requires:
             - install
