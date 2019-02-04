@@ -13,9 +13,6 @@ jobs:
           root: .
           paths:
             - data/*
-            - dist/*
-            - ./api.js
-            - ./cli.js
 
   install:
     <<: *defaults
@@ -32,7 +29,7 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - run: ls -la
+      - run: cat ./data/config.json
 
 workflows:
   version: 2
