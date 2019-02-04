@@ -23,6 +23,11 @@ jobs:
           root: .
           paths:
             - node_modules/*
+  deploy:
+    <<: *defaults
+    steps:
+      - checkout
+      - run: ls -la
 
 workflows:
   version: 2
@@ -32,3 +37,6 @@ workflows:
       - install:
           requires:
             - set-config
+      - deploy:
+          requires:
+            - install
