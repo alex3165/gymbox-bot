@@ -9,10 +9,6 @@ jobs:
     steps:
       - checkout
       - run: npm run set-config
-      - persist_to_workspace:
-        root: .
-        paths:
-          - build/*
 
   install:
     <<: *defaults
