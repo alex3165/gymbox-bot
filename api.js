@@ -11,6 +11,7 @@ const { extractTimeTable, combineTimeTables } = require('./dist/timetable');
 const { createRxMiddleware } = require('./dist/utils/rx-middleware');
 const { readfile, writeFile } = require('./dist/utils/rx-fs');
 const classesPath = './data/classes.json';
+const classesByDayPath = './data/classesByDay.json';
 
 const addClass = (classes, newClass) => {
   const copiedClasses = Object.assign({}, classes);
@@ -24,6 +25,37 @@ const addClass = (classes, newClass) => {
 
   return copiedClasses;
 };
+
+app.get(
+  '/',
+  createRxMiddleware(req$ =>
+    req$
+      .flatMap(() =>
+        Observable.combineLatest(
+          req$,
+          readfile(classesPath),
+          readfile(classesByDayPath)
+        )
+      )
+      .flatMap(([req, classes, classesByDay]) => {
+        if (!req.query.email || !req.query.password) {
+          return Observable.of({
+            message: 'Provide email and password query parameters'
+          });
+        }
+
+        return Observable.fromPromise(
+          login({ shouldSetCookies: true }).then(() =>
+            login({ email: req.query.email, password: req.query.password })
+          )
+        ).map(() => {
+          return req.query.byDay
+            ? JSON.parse(classesByDay)
+            : JSON.parse(classes);
+        });
+      })
+  )
+);
 
 /**
  * Get the time table
@@ -113,5 +145,24 @@ app.get(
   )
 );
 
+const PORT = 3002;
+
 // Start the app and listen on port 3000
-app.listen(3002);
+app.listen(PORT, () => {
+  console.log(`
+    Listening app on port ${PORT}, endpoints:
+      - GET: /api/table: return the gymbox time table
+      - Query params:
+        - email: Gymbox user email
+        - password: Gymbox user password
+    
+    - GET: /api/add: Add a class to book
+      - Query params:
+        - email: Gymbox user email
+        - password: Gymbox user password
+        - className: The name of the class to book
+        - time: The time of the class to book, format: HH:mm
+        - date: The date of the class to book, format: YYYY-MM-DD
+        - location: The gym location of the class to book
+  `);
+});
