@@ -11,6 +11,8 @@ RUN npm install
 # Bundle app source
 COPY dist/ /usr/src/app/dist/
 COPY scheduler.js /usr/src/app/
+COPY data/ /usr/src/app/data/
+
 RUN ls -la /usr/src/app/
 
 EXPOSE 3002

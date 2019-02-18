@@ -1,13 +1,3 @@
 node_modules
-config.json
-classes.json
-up.sh
-.idea
-session.json
-classesByDay.json
+data
 yarn.lock
-**/*.pem
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
