@@ -6,3 +6,8 @@ up.sh
 session.json
 classesByDay.json
 yarn.lock
+**/*.pem
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

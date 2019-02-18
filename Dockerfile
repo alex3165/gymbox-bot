@@ -13,4 +13,6 @@ COPY dist/ /usr/src/app/dist/
 COPY scheduler.js /usr/src/app/
 RUN ls -la /usr/src/app/
 
+EXPOSE 3002
+
 CMD [ "npm", "run", "schedule" ]
