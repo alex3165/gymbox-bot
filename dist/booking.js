@@ -57,8 +57,12 @@ const filterToBookByDate = filterToBook(classesByDate, key => moment(key));
 const filterToBookByDay = filterToBook(classesByDay, key =>
   moment(key, 'ddd dddd')
 );
-const filterAllClassesToBook = lessons =>
-  filterToBookByDate(lessons).concat(filterToBookByDay(lessons));
+
+const filterAllClassesToBook = lessons => {
+  const bookByDay = filterToBookByDay(lessons);
+  const bookByDate = filterToBookByDate(lessons);
+  return [].concat(bookByDate, bookByDay);
+};
 
 const bookClasses = lessons => {
   if (lessons && lessons.length > 0) {

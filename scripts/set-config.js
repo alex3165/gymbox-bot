@@ -1,8 +1,23 @@
-const fs = require('fs')
+const fs = require('fs');
 
 fs.mkdirSync('./data');
 
-const { GYMBOX_EMAIL, GYMBOX_PASSWORD } = process.env
+const { GYMBOX_EMAIL, GYMBOX_PASSWORD, ENABLE_DEFAULT } = process.env;
 
-fs.writeFileSync('./data/config.json', JSON.stringify({ email: GYMBOX_EMAIL, password: GYMBOX_PASSWORD }))
-fs.writeFileSync('./data/classes.json', JSON.stringify({}))
+const defaultClass = {
+  Tuesday: {
+    className: 'OCR Training',
+    time: '18:30',
+    location: 'Farringdon'
+  }
+};
+
+fs.writeFileSync(
+  './data/config.json',
+  JSON.stringify({ email: GYMBOX_EMAIL, password: GYMBOX_PASSWORD })
+);
+fs.writeFileSync('./data/classes.json', JSON.stringify({}));
+fs.writeFileSync(
+  './data/classesByDay.json',
+  JSON.stringify(ENABLE_DEFAULT === 'true' ? defaultClass : {})
+);
