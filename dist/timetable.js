@@ -1,6 +1,8 @@
 const moment = require('moment');
 const cheerio = require('cheerio');
 const parseString = require('xml2js').parseString;
+const { log } = require('./utils/logger');
+
 const dateFormat = 'YYYY-MM-DD';
 
 const extractTimeTable = (clubLocation, body) => {
@@ -13,7 +15,7 @@ const extractTimeTable = (clubLocation, body) => {
     const timeTable = timeTableArr[0];
     parseString(cheerio.load(timeTable).xml(), (err, result) => {
       if (!err) {
-        console.log(`Extracted time table for ${clubLocation}`);
+        log(`Extracted time table for ${clubLocation}`);
         return res(formatTimeTable(clubLocation, result));
       }
 

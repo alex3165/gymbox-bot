@@ -14,6 +14,7 @@ const {
 const { extractTimeTable, combineTimeTables } = require('./timetable');
 const classesByDate = require('../data/classes.json');
 const classesByDay = require('../data/classesByDay.json');
+const { log } = require('./utils/logger');
 
 const filterToBook = (classes, getClassDate) => lessons => {
   let classesToBook = Object.keys(classes)
@@ -45,7 +46,7 @@ const filterToBook = (classes, getClassDate) => lessons => {
 
   return classesToBook.filter(l => {
     if (!l.canBook) {
-      console.log(`Can't book class ${l.className} at ${l.time}`);
+      log(`Can't book class ${l.className} at ${l.time}`);
       return false;
     }
 
@@ -66,9 +67,7 @@ const filterAllClassesToBook = lessons => {
 
 const bookClasses = lessons => {
   if (lessons && lessons.length > 0) {
-    console.log(
-      `Lessons ready to book: ${lessons.map(l => l.className).join(' ')}`
-    );
+    log(`Lessons ready to book: ${lessons.map(l => l.className).join(' ')}`);
     return Promise.all(lessons.map(postBooking));
   }
 
@@ -112,14 +111,14 @@ const main = (email, password) => {
 
         if (err instanceof Error) {
           errorMessage = err.message;
-          console.log(err);
+          log(err);
         }
 
         if (typeof err === 'object' && err.Message) {
           errorMessage = err.Message;
         }
 
-        console.error('Logged out, error: ', errorMessage);
+        log('Logged out, error: ', errorMessage);
       });
     });
 };

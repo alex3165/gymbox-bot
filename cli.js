@@ -1,6 +1,7 @@
 const config = require('./data/config.json');
 const { getUserLoginDetails } = require('./dist/utils/login');
 const { main } = require('./dist/booking');
+const { log } = require('./dist/utils/logger');
 
 const { email, password } = getUserLoginDetails(config);
 
@@ -19,6 +20,6 @@ if (command === -1) {
 const commandValue = process.argv[command + 1];
 
 if (commandValue === 'run') {
-  console.log(`Run booking of classes process with email: ${email}`);
+  log(`Run booking of classes process with email: ${email}`);
   main(email, password);
 }

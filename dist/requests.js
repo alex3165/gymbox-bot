@@ -1,5 +1,6 @@
 const request = require('request');
 const { flatten } = require('ramda');
+const { log } = require('./utils/logger');
 
 const baseUrl = 'https://gymbox.legendonlineservices.co.uk/enterprise';
 const loginUrl = `${baseUrl}/account/login`;
@@ -53,21 +54,19 @@ module.exports = {
         (err, _, body) => {
           if (shouldSetCookies) {
             cookies = getCookies(_.headers['set-cookie']);
-            // console.log('Set cookies', cookies);
             return res();
           }
-          // console.log(_);
           if (
             !err &&
             (_.statusCode === 302 || _.statusCode === 200) &&
             !body.includes('Login failed')
           ) {
-            console.log('Login succeed code: ', _.statusCode);
+            log('Login succeed code: ', _.statusCode);
 
             return res();
           }
 
-          console.error(`Couldn't login status: ${_.statusCode}`);
+          log(`Couldn't login status: ${_.statusCode}`);
           return rej(
             body.includes('Login failed') ? new Error('Login failed') : err
           );
@@ -86,7 +85,7 @@ module.exports = {
         },
         (err, _, body) => {
           if (!err && _.statusCode === 302) {
-            console.log('Logout succeed code: ', _.statusCode);
+            log('Logout succeed code: ', _.statusCode);
             return res();
           }
 
@@ -106,7 +105,7 @@ module.exports = {
         },
         (err, _, body) => {
           if (!err) {
-            console.log('Fetched bookable clubs');
+            log('Fetched bookable clubs');
             return res(body);
           }
           return rej(err);
@@ -125,7 +124,7 @@ module.exports = {
         },
         (err, _, body) => {
           if (!err) {
-            console.log(`Fetched time table for club Id ${id}`);
+            log(`Fetched time table for club Id ${id}`);
             return res(body);
           }
 
@@ -145,7 +144,7 @@ module.exports = {
         },
         (err, _, body) => {
           if (!err) {
-            console.log('Fetched time table');
+            log('Fetched time table');
             return res(body);
           }
 
@@ -168,9 +167,7 @@ module.exports = {
         (err, _, body) => {
           const parsedBody = JSON.parse(body);
           if (!err && parsedBody.Success) {
-            console.log(
-              `Class ${lesson.className} at ${lesson.time} added to basket`
-            );
+            log(`Class ${lesson.className} at ${lesson.time} added to basket`);
             return res(body);
           }
 
@@ -192,11 +189,11 @@ module.exports = {
         (err, _, body) => {
           const parsedBody = JSON.parse(body);
           if (!err) {
-            console.log(`Active notices status code: ${_.statusCode}`);
+            log(`Active notices status code: ${_.statusCode}`);
             return res(body);
           }
 
-          console.error(`Active notice failed with code: ${_.statusCode}`);
+          log(`Active notice failed with code: ${_.statusCode}`);
           return rej(err || body);
         }
       );
@@ -226,15 +223,13 @@ module.exports = {
         },
         (err, _, body) => {
           if ((!err && _.statusCode === 200) || _.statusCode === 302) {
-            console.log(`Payment succeed with status code: ${_.statusCode}`);
+            log(`Payment succeed with status code: ${_.statusCode}`);
             return res();
           }
 
           delete _.body;
-          console.log(JSON.stringify(_));
-          console.error(
-            `Payment rejected with status code: ${_.statusCode}, req: ${_}`
-          );
+          log(JSON.stringify(_));
+          log(`Payment rejected with status code: ${_.statusCode}, req: ${_}`);
           return rej(err);
         }
       );
@@ -251,11 +246,11 @@ module.exports = {
         },
         (err, _, body) => {
           if (!err && _.statusCode === 200) {
-            console.log(`Payment confirmed with status code: ${_.statusCode}`);
+            log(`Payment confirmed with status code: ${_.statusCode}`);
             return res();
           }
 
-          console.error(
+          log(
             `Payment confirmation rejected with status code: ${_.statusCode}`
           );
           return rej(err);

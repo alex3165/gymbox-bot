@@ -10,6 +10,8 @@ const {
 const { extractTimeTable, combineTimeTables } = require('./dist/timetable');
 const { createRxMiddleware } = require('./dist/utils/rx-middleware');
 const { readfile, writeFile } = require('./dist/utils/rx-fs');
+const { log } = require('./dist/utils/logger');
+
 const classesPath = './data/classes.json';
 const classesByDayPath = './data/classesByDay.json';
 
@@ -149,7 +151,7 @@ const PORT = 3002;
 
 // Start the app and listen on port 3000
 app.listen(PORT, () => {
-  console.log(`
+  log(`
     Listening app on port ${PORT}, endpoints:
       - GET: /api/table: return the gymbox time table
       - Query params:
