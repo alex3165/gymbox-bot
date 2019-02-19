@@ -22,24 +22,11 @@ const getTimezonedhour = () => {
   return 7 + (machineHour - BSTHour);
 };
 
-const finalCron = CRON || `0 ${getTimezonedhour()} * * *`;
+const finalCron = CRON || `2 ${getTimezonedhour()} * * *`;
 
 console.log(`Running scheduler with Cron: ${finalCron}`);
 
 /**
- * Run everyday at 7am, BST time (retry every 5 minutes for 2 hours after 7am)
+ * Run everyday at 7am, BST time
  */
-cron.schedule(finalCron, () => {
-  run();
-
-  // Retry for 2 hours
-  let retry = 24;
-  const interval = setInterval(() => {
-    if (retry > 0) {
-      retry--;
-      return run();
-    }
-
-    clearInterval(interval);
-  }, 300000);
-});
+cron.schedule(finalCron, run);
