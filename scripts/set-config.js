@@ -9,6 +9,11 @@ const defaultClass = {
     className: 'OCR Training',
     time: '18:30',
     location: 'Farringdon'
+  },
+  Saturday: {
+    className: 'Bodyweight Bandits',
+    time: '11:30',
+    location: 'Westfield London'
   }
 };
 
