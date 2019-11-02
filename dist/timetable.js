@@ -12,7 +12,11 @@ const extractTimeTable = (clubLocation, body) => {
       return res({});
     }
 
-    const timeTable = timeTableArr[0];
+    let timeTable = timeTableArr[0];
+    
+    // Reppin' fix
++   timeTable = timeTable.replace(/Reppin'/g, "Reppin");
+    
     parseString(cheerio.load(timeTable).xml(), (err, result) => {
       if (!err) {
         log(`Extracted time table for ${clubLocation}`);
