@@ -12,7 +12,7 @@ const { CRON } = process.env;
 
 const run = () => {
   log('Running booking');
-  main(email, password, true);
+  main(email, password);
 };
 
 const getTimezonedhour = () => {

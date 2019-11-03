@@ -16,31 +16,13 @@ const classesByDate = require('../data/classes.json');
 const classesByDay = require('../data/classesByDay.json');
 const { log } = require('./utils/logger');
 
-const filterToBook = (classes, getClassDate) => (lessons, tomorrowOnly) => {
+const filterToBook = (classes, getClassDate) => lessons => {
   let classesToBook = Object.keys(classes)
     .filter(key => {
-      if (tomorrowOnly) {
-        // Is the class tomorrow
-        return getClassDate(key)
-          .subtract(1, 'day')
-          .isSame(moment(), 'day');
-      } else {
-        return (
-          // Is the class minus 1 days at 7am same or before current date / time
-          getClassDate(key)
-            .subtract(1, 'day')
-            .hour(7)
-            .minute(0)
-            .second(0)
-            .isSameOrBefore(moment()) &&
-          // Is the class after current date / time
-          getClassDate(key)
-            .hour(23)
-            .minute(59)
-            .second(59)
-            .isSameOrAfter(moment())
-        );
-      }
+      // Is the class tomorrow
+      return getClassDate(key)
+        .subtract(1, 'day')
+        .isSame(moment(), 'day');
     })
     .map(key =>
       lessons[getClassDate(key).format('YYYY-MM-DD')].find(
@@ -67,9 +49,9 @@ const filterToBookByDay = filterToBook(classesByDay, key =>
   moment(key, 'ddd dddd')
 );
 
-const filterAllClassesToBook = (lessons, tomorrowOnly) => {
-  const bookByDay = filterToBookByDay(lessons, tomorrowOnly);
-  const bookByDate = filterToBookByDate(lessons, tomorrowOnly);
+const filterAllClassesToBook = lessons => {
+  const bookByDay = filterToBookByDay(lessons);
+  const bookByDate = filterToBookByDate(lessons);
   return [].concat(bookByDate, bookByDay);
 };
 
@@ -93,13 +75,13 @@ const getGymboxTimeTables = allClubs => {
   );
 };
 
-const main = (email, password, tomorrowOnly) => {
+const main = (email, password) => {
   login({ shouldSetCookies: true })
     .then(() => login({ email, password }))
     .then(getAllClubs)
     .then(getGymboxTimeTables)
     .then(combineTimeTables)
-    .then(data => filterAllClassesToBook(data, tomorrowOnly))
+    .then(data => filterAllClassesToBook(data))
     .then(bookClasses)
     .then(() =>
       getActiveNotices(
