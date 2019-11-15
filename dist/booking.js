@@ -18,22 +18,12 @@ const { log } = require('./utils/logger');
 
 const filterToBook = (classes, getClassDate) => lessons => {
   let classesToBook = Object.keys(classes)
-    .filter(
-      key =>
-        // Is the class minus 1 days at 7am same or before current date / time
-        getClassDate(key)
-          .subtract(1, 'day')
-          .hour(7)
-          .minute(0)
-          .second(0)
-          .isSameOrBefore(moment()) &&
-        // Is the class after current date / time
-        getClassDate(key)
-          .hour(23)
-          .minute(59)
-          .second(59)
-          .isSameOrAfter(moment())
-    )
+    .filter(key => {
+      // Is the class tomorrow
+      return getClassDate(key)
+        .subtract(1, 'day')
+        .isSame(moment(), 'day');
+    })
     .map(key =>
       lessons[getClassDate(key).format('YYYY-MM-DD')].find(
         l =>
@@ -91,7 +81,7 @@ const main = (email, password) => {
     .then(getAllClubs)
     .then(getGymboxTimeTables)
     .then(combineTimeTables)
-    .then(filterAllClassesToBook)
+    .then(data => filterAllClassesToBook(data))
     .then(bookClasses)
     .then(() =>
       getActiveNotices(
