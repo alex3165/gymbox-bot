@@ -1,47 +1,41 @@
 const moment = require('moment');
-const cheerio = require('cheerio');
-const parseString = require('xml2js').parseString;
-const { log } = require('./utils/logger');
+const { parser } = require('./timetable-parser');
 
 const dateFormat = 'YYYY-MM-DD';
 
-const extractTimeTable = (clubLocation, body) => {
-  return new Promise((res, reject) => {
-    const timeTableArr = /<table id=\'MemberTimetable\'.*<\/table>/.exec(body);
-    if (!Array.isArray(timeTableArr) || !timeTableArr.length) {
-      return res({});
-    }
+const extractTimeTable = async (clubLocation, body) => {
+  const timetable = await parser(body);
+  let lastKey;
 
-    const timeTable = timeTableArr[0];
-    parseString(cheerio.load(timeTable).xml(), (err, result) => {
-      if (!err) {
-        log(`Extracted time table for ${clubLocation}`);
-        return res(formatTimeTable(clubLocation, result));
+  return timetable.reduce((acc, next) => {
+    if (typeof next === 'string') {
+      const date = moment(next, 'dddd - DD MMMM YYYY');
+      if (!date.isValid()) {
+        return acc;
       }
 
-      return reject(err);
-    });
-  });
-};
-
-const formatTimeTable = (clubLocation, timeTable) => {
-  return timeTable.table.tr.reduce((acc, tr) => {
-    if (tr.$ && tr.$.class === 'dayHeader') {
-      const date = moment(tr.td[0].h5[0].trim(), 'dddd - DD MMMM YYYY');
-      acc[date.format(dateFormat)] = [];
+      const key = date.format(dateFormat);
+      acc[key] = [];
+      lastKey = key;
     }
 
-    if (!tr.$ || tr.$.class === 'altRow') {
-      const lastKey = Object.keys(acc).pop();
+    if (typeof next === 'object' && !next.slot) {
+      console.error('Missing slot', next);
+    }
 
+    if (typeof next === 'object') {
       acc[lastKey].push({
-        id: parseInt(tr.td[5].span[0].a[0].$.rel.split('=')[1]),
-        className: tr.td[1].span[0].a[0]._,
-        time: tr.td[0].span[0]._,
+        id: next.slot,
+        className: next.name,
+        time: next.time,
         location: clubLocation,
-        canBook: !(tr.td[7] === 'Add To Waiting List' || tr.td[7] === 'Past')
+        canBook:
+          next.action !== 'Add To Waiting List' ||
+          next.action !== 'Past' ||
+          next.action !== 'Full'
       });
     }
+
     return acc;
   }, {});
 };

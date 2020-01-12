@@ -113,7 +113,7 @@ module.exports = {
       );
     });
   },
-  getGymboxTimeTableById(id) {
+  getGymboxTimeTableById(id, clubName) {
     return new Promise((res, rej) => {
       request.get(
         {
@@ -124,7 +124,7 @@ module.exports = {
         },
         (err, _, body) => {
           if (!err) {
-            log(`Fetched time table for club Id ${id}`);
+            log(`Fetched time table for ${clubName}`);
             return res(body);
           }
 

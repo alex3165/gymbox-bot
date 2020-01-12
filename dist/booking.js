@@ -65,24 +65,41 @@ const filterAllClassesToBook = lessons => {
   return [].concat(bookByDate, bookByDay);
 };
 
-const bookClasses = lessons => {
+const bookClasses = async lessons => {
+  const res = [];
   if (lessons && lessons.length > 0) {
-    log(`Lessons ready to book: ${lessons.map(l => l.className).join(' ')}`);
-    return Promise.all(lessons.map(postBooking));
+    log(`Booking lesson: ${lessons.map(l => l.className).join(' ')}`);
+    for (const lesson of lessons) {
+      try {
+        const lessonResponse = await postBooking(lesson);
+        res.push(lessonResponse);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    console.log(res);
+    return res;
   }
 
   throw new Error('No lessons to book today');
 };
 
-const getGymboxTimeTables = allClubs => {
-  var clubs = JSON.parse(allClubs);
-  return Promise.all(
-    clubs.map(club =>
-      getGymboxTimeTableById(club.Id).then(body =>
-        extractTimeTable(club.Name, body)
-      )
-    )
-  );
+const getGymboxTimeTables = async allClubs => {
+  const clubs = JSON.parse(allClubs);
+  const result = [];
+  for (const club of clubs) {
+    const body = await getGymboxTimeTableById(club.Id, club.Name);
+    try {
+      const timetable = await extractTimeTable(club.Name, body);
+      result.push(timetable);
+      console.log(`Extracted timetable for club ${club.Name}`);
+    } catch (err) {
+      console.log(`Failed extracting timetable for club ${club.Name}`);
+      console.error(err);
+    }
+  }
+
+  return result;
 };
 
 const main = (email, password) => {
@@ -93,14 +110,20 @@ const main = (email, password) => {
     .then(combineTimeTables)
     .then(filterAllClassesToBook)
     .then(bookClasses)
-    .then(() =>
-      getActiveNotices(
-        'https://gymbox.legendonlineservices.co.uk/enterprise/Basket/'
-      )
-    )
-    .then(completeBasket)
-    .then(confirmPayment)
-    .then(logout)
+    .then(async bookedClasses => {
+      if (bookedClasses.length) {
+        console.log('Booking executed, completing payment');
+        const activeNotices = await getActiveNotices(
+          'https://gymbox.legendonlineservices.co.uk/enterprise/Basket/'
+        );
+
+        const completedBasket = await completeBasket(activeNotices);
+        const confirmedPayment = await confirmPayment(completedBasket);
+        await logout(confirmedPayment);
+      } else {
+        console.log('No booking for today, logging out');
+      }
+    })
     .catch(err => {
       logout().then(() => {
         let errorMessage;

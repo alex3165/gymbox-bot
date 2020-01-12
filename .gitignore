@@ -2,3 +2,4 @@ node_modules
 data
 yarn.lock
 *.pem
+.DS_Store
