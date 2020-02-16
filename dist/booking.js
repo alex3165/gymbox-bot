@@ -59,6 +59,14 @@ const filterToBookByDay = filterToBook(classesByDay, key =>
   moment(key, 'ddd dddd')
 );
 
+const filterClubsToRetrieve = Array.from(
+  new Set(
+    Object.values(classesByDate)
+      .concat(Object.values(classesByDay))
+      .map(currentClass => currentClass.location)
+  )
+);
+
 const filterAllClassesToBook = lessons => {
   const bookByDay = filterToBookByDay(lessons);
   const bookByDate = filterToBookByDate(lessons);
@@ -85,7 +93,10 @@ const bookClasses = async lessons => {
 };
 
 const getGymboxTimeTables = async allClubs => {
-  const clubs = JSON.parse(allClubs);
+  const clubs = JSON.parse(allClubs).filter(c =>
+    filterClubsToRetrieve.includes(c.Name)
+  );
+
   const result = [];
   for (const club of clubs) {
     const body = await getGymboxTimeTableById(club.Id, club.Name);
